@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<rtde_config>
+	<recipe key="fromRobot">
+		<field name="robot_mode" type="INT32"/>
+		<field name="safety_mode" type="INT32"/>
+		<field name="runtime_state" type="UINT32"/>
+	</recipe>
+        <recipe key="toRobot">
+		<field name="input_int_register_1" type="INT32"/>
+	</recipe>
+</rtde_config>
