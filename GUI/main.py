@@ -12,7 +12,6 @@ class home(base_app):
 
 
         self.SCR_MAIN = -1
-
         ##Define array of screens
         self.screens = []
         self.scrmap = [-1]
@@ -34,10 +33,10 @@ class home(base_app):
         #self.inlet = self.lslServer()
 
         #Trace calls from drop down menus
-        self.header.individualName.trace("w", self.newUser)
-        self.header.CType.trace("w", self.serverConnect)
+        self.header.individualName.trace("w", self.popUpNewUser)
+        self.header.CType.trace("w", self.popUpNetwork)
 
-    def newUser(self, *args):
+    def popUpNewUser(self, *args):
         pass
 
     def UDPTest(self):
@@ -56,11 +55,22 @@ class home(base_app):
         #print(channel_data)
         self.master.after(50, self.lslTest)
 
-    def serverConnect(self, *args):
+    def serverConnect(self):
         if self.header.CType.get() == "UDP":
             self.socket = self.UDPServerInit()
         elif self.header.CType.get() == "LSL":
             self.inlet = self.lslServer()
+
+        #Close popup
+        self.messageWindow.closePopup()
+
+    def popUpNetwork(self, *args):
+        #Initalize popup window class
+        self.messageWindow = pop.popupWindow(self.master)
+        self.messageWindow.popupConnection()
+        #Popup needs to be forced refresh to display
+        self.master.update()
+        self.serverConnect()
 
 #Launcher
 #######################################

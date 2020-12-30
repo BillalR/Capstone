@@ -105,6 +105,6 @@ def init_default_window(master, style):
     style.configure('TFrame', background='red', bd=0)
 
 
-    style.configure('TLabel', background='orange')
+    style.configure('TLabel', background='white', font=('Helvetica Bold', 20), wrap=tk.WORD)
 
     style.configure('pageLabel', background = 'red')

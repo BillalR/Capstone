@@ -37,9 +37,6 @@ class base_app:
         self.frame = ttk.Frame(self.removable_frame, style='TFrame')
         self.frame.pack(expand = 1, fill = 'both')
 
-        #init popup vaiables
-        self.popup_window = None
-
         #define variables for the hidden quit button
         self._countdown_to_quit = 5
         self._countdown_time = time.time()
@@ -49,8 +46,6 @@ class base_app:
     def quitApp(self):
         os._exit(0)
 
-    def popup(self, message, password=False, cancel=False, okayCommand=None, cancelCommand=None, okayLabel='Okay', cancelLabel='Cancel'):
-        pop.popup(self.master, message, password=password, cancel=cancel, okayCommand=okayCommand, cancelCommand=cancelCommand,okayLabel=okayLabel, cancelLabel=cancelLabel)
 
     #UDP Server Connection
     def UDPServerInit(self):
