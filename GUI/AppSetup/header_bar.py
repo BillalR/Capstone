@@ -13,31 +13,25 @@ class header:
         self.canvas = tk.Canvas(self.master,
                                 height = self.header_height,
                                 width = 800,
-                                bg = "white",
+                                bg = "#81899f",
                                 bd=0,
                                 highlightcolor = light_grey,
-                                highlightbackground = black)
+                                highlightbackground = "#81899f")
         for rows in range (0,3):
             self.canvas.rowconfigure(rows, weight = 1)
         for columns in range(0,30):
             self.canvas.columnconfigure(columns, weight = 1)
 
-        #logo image
-        '''
-        self.logoImage = tk.PhotoImage(file='./AppSetup/graphics/bakerbot_small.png')
-        self.logoLabel = ttk.Label(self.canvas,
-                                     image = self.logoImage,
-                                     style='image.TButton')
-        self.logoLabel.grid(column=0,row=0,columnspan=1,rowspan=3, sticky='w')
-        self.canvas.create_image(20,0,image=self.logoImage,anchor = 'nw')
-        '''
+
         #title
         self.pageName = tk.StringVar()
         self.pageName.set("Home")
 
         self.title=tk.Label(self.canvas,
                         font = ('Helvetica', 16),
-                        textvariable = self.pageName)
+                        textvariable = self.pageName,
+                        bg = "#81899f")
+
 
         self.title.grid(column=14,row=0,columnspan=1,rowspan=3)
 
@@ -51,13 +45,13 @@ class header:
 
         self.dropDown = tk.OptionMenu(self.canvas, self.individualName, *self.UserOPTIONS)
         self.dropDown.grid(column = 29, row = 1)
-        self.dropDown.config(width=11)
+        self.dropDown.config(width=11,bg = "#81899f")
 
 
         #Drop down menu for Connection types
         self.UserOPTIONSNetwork = [
-        "LSL",
-        "UDP"
+        "LSL                    ",
+        "UDP                    "
         ]
 
         self.CType = tk.StringVar()
@@ -65,7 +59,7 @@ class header:
 
         self.ConnectionTypes = tk.OptionMenu(self.canvas, self.CType, *self.UserOPTIONSNetwork)
         self.ConnectionTypes.grid(column = 0, row = 1)
-        self.ConnectionTypes.config(width=15)
+        self.ConnectionTypes.config(width=15, bg="#81899f")
 
         #status indicator
         '''

@@ -10,7 +10,6 @@ class home(base_app):
         super().__init__(master)
         self.master = master
 
-
         self.SCR_MAIN = -1
         ##Define array of screens
         self.screens = []
@@ -21,20 +20,22 @@ class home(base_app):
         self.SCR_MAIN = self.numScreens
         self.numScreens += 1
         self.screens.append(mainScreen(self.frame))
-        self.screens[self.SCR_MAIN].serialData.configure(command=self.lslTest)
-        self.screens[self.SCR_MAIN].serialData
+        #self.screens[self.SCR_MAIN].serialData.configure(command=self.lslTest)
 
 
         #Load initial screen
         self.screens[self.SCR_MAIN].pack()
         self.scrmap.append(self.SCR_MAIN)
 
-        #self.socket = self.UDPServerInit()
-        #self.inlet = self.lslServer()
+        #Footer information button
+        self.footer.logoButton.configure(command=self.infoLogo)
 
         #Trace calls from drop down menus
         self.header.individualName.trace("w", self.popUpNewUser)
         self.header.CType.trace("w", self.popUpNetwork)
+
+        #Popup init
+        self.messageWindow = pop.popupWindow(self.master)
 
     def popUpNewUser(self, *args):
         pass
@@ -56,9 +57,9 @@ class home(base_app):
         self.master.after(50, self.lslTest)
 
     def serverConnect(self):
-        if self.header.CType.get() == "UDP":
+        if self.header.CType.get() == "UDP                    ":
             self.socket = self.UDPServerInit()
-        elif self.header.CType.get() == "LSL":
+        elif self.header.CType.get() == "LSL                    ":
             self.inlet = self.lslServer()
 
         #Close popup
@@ -66,11 +67,17 @@ class home(base_app):
 
     def popUpNetwork(self, *args):
         #Initalize popup window class
-        self.messageWindow = pop.popupWindow(self.master)
         self.messageWindow.popupConnection()
         #Popup needs to be forced refresh to display
         self.master.update()
         self.serverConnect()
+
+    def infoLogo(self):
+        self.master.focus()
+        self.messageWindow.popupInfo()
+        #Popup needs to be forced refresh to display
+        self.master.update()
+
 
 #Launcher
 #######################################

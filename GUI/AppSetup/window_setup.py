@@ -75,6 +75,7 @@ def init_default_window(master, style):
     print('screen resolution:',w,h)
     master.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
+    style.theme_use('clam')
     #coloured button styles
     style.configure('gui.TButton',
                          foreground='black',
@@ -102,9 +103,20 @@ def init_default_window(master, style):
     style.configure('tight.TButton', padding=button_padding*0.5, width=0)#flat and tight
 
     #generic frame style
-    style.configure('TFrame', background='red', bd=0)
+    style.configure('TFrame', background='white', bd=0)
 
 
     style.configure('TLabel', background='white', font=('Helvetica Bold', 20), wrap=tk.WORD)
 
     style.configure('pageLabel', background = 'red')
+
+    #All of this below might need to be removed, it might tamper with other button styles
+    style.configure("TMenubutton", background="#81899f")
+    style.configure('flat.TButton',borderwidth=0,background="#81899f",bd=-2)
+
+    style.map('flat.TButton',foreground=[('disabled', light_grey),
+                    ('pressed', '#81899f'),
+                    ('active', '#81899f')],
+        background=[('active', '#81899f')],
+        highlightcolor=[('focus', '#81899f'),
+                        ('!focus', '#81899f')])

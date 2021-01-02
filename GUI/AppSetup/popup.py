@@ -7,10 +7,10 @@ class popupWindow:
     def __init__(self,master):
 
         self.master = master
-        self.popup_window = tk.Toplevel()
+
 
     def popupConnection(self):
-
+        self.popup_window = tk.Toplevel()
         scr_w = self.master.winfo_screenwidth()
         scr_h = self.master.winfo_screenheight()
         pop_w = 600
@@ -75,6 +75,22 @@ class popupWindow:
             action()
         closePopup()
     '''
+
+    def popupInfo(self):
+        self.popup_window = tk.Toplevel()
+        scr_w = self.master.winfo_screenwidth()
+        scr_h = self.master.winfo_screenheight()
+        pop_w = 600
+        pop_h = 400
+        self.popup_window.geometry('%dx%d+%d+%d' % (pop_w, pop_h, (scr_w/2)-(pop_w/2), (scr_h/2)-(pop_h/2)))
+        self.popup_window.title("Gen C. Team")
+        self.popupFrame = ttk.Frame(self.popup_window, style = 'TFrame')
+
+        popupLabel = ttk.Label(self.popupFrame,style='TLabel', text="Team info section")
+        popupLabel.grid(column=0, row=0, rowspan=1, columnspan=2, padx=20, pady=0)
+
+        self.popupFrame.pack(expand = 1, fill = 'both')
+
     def closePopup(self):
         self.p.stop()
         self.popupFrame.destroy()

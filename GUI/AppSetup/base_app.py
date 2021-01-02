@@ -33,6 +33,7 @@ class base_app:
         self.master.title("Gencephalon")
 
         self.header = header_bar.header(self.removable_frame)
+        self.footer = footer_bar.footer(self.removable_frame)
         #init the center screen (screens need to be placed on this frame)
         self.frame = ttk.Frame(self.removable_frame, style='TFrame')
         self.frame.pack(expand = 1, fill = 'both')
