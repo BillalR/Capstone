@@ -74,4 +74,4 @@ class header:
 #        self.subText_id = self.canvas.create_text(500, 55, text = '', font = ('Verdana', 10), fill = '#232A34', anchor = 'w')
 
 
-        self.canvas.pack(fill='x', ipady = 3)
+        self.canvas.pack(fill='x', ipady = 3, side=tk.TOP)
