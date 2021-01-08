@@ -42,11 +42,11 @@ class base_app:
         self._countdown_to_quit = 5
         self._countdown_time = time.time()
 
+        
 
 
     def quitApp(self):
         os._exit(0)
-
 
     #UDP Server Connection
     def UDPServerInit(self):

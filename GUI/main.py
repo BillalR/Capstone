@@ -3,14 +3,16 @@ from AppSetup.base_app import *
 #import the screens
 from mainScreen import *
 
+
+
 class home(base_app):
     def __init__(self, master):
-        #call the base app initializer (called super)
-        #refer to base_app.py for documentation on what gets inherited
+
         super().__init__(master)
         self.master = master
 
         self.SCR_MAIN = -1
+
         ##Define array of screens
         self.screens = []
         self.scrmap = [-1]
@@ -20,7 +22,7 @@ class home(base_app):
         self.SCR_MAIN = self.numScreens
         self.numScreens += 1
         self.screens.append(mainScreen(self.frame))
-        #self.screens[self.SCR_MAIN].serialData.configure(command=self.lslTest)
+        self.screens[self.SCR_MAIN].calibrateButton.configure(command=self.headsetCalibration)
 
 
         #Load initial screen
@@ -31,14 +33,17 @@ class home(base_app):
         self.footer.logoButton.configure(command=self.infoLogo)
 
         #Trace calls from drop down menus
-        self.header.individualName.trace("w", self.popUpNewUser)
-        self.header.CType.trace("w", self.popUpNetwork)
+        self.header.user.trace("w", self.newUser)
+        self.header.CType.trace("w", self.runNetwork)
 
         #Popup init
         self.messageWindow = pop.popupWindow(self.master)
+        #Initalize user data folder
+        self.dataFolder()
 
-    def popUpNewUser(self, *args):
-        pass
+    def newUser(self, *args):
+        self.master.focus()
+        self.messageWindow.popupNewUser(0)
 
     def UDPTest(self):
         data, addr = self.socket.recvfrom(2000)
@@ -65,7 +70,7 @@ class home(base_app):
         #Close popup
         self.messageWindow.closePopup()
 
-    def popUpNetwork(self, *args):
+    def runNetwork(self, *args):
         #Initalize popup window class
         self.messageWindow.popupConnection()
         #Popup needs to be forced refresh to display
@@ -77,6 +82,24 @@ class home(base_app):
         self.messageWindow.popupInfo()
         #Popup needs to be forced refresh to display
         self.master.update()
+
+    def headsetCalibration(self):
+        if self.header.user.get() == "User":
+            self.master.focus()
+            self.messageWindow.popupNoUser()
+        else:
+            pass
+
+    def dataFolder(self):
+        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+        rel_path = "UserData"
+        abs_file_path = os.path.join(script_dir, rel_path)
+
+        if os.path.isdir(abs_file_path):
+            pass
+        else:
+            os.mkdir(abs_file_path)
+
 
 
 #Launcher

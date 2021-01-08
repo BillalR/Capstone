@@ -40,10 +40,10 @@ class header:
         "New User..."
         ]
 
-        self.individualName = tk.StringVar()
-        self.individualName.set("User") # default value
+        self.user = tk.StringVar()
+        self.user.set("User") # default value
 
-        self.dropDown = tk.OptionMenu(self.canvas, self.individualName, *self.UserOPTIONS)
+        self.dropDown = tk.OptionMenu(self.canvas, self.user, *self.UserOPTIONS)
         self.dropDown.grid(column = 29, row = 1)
         self.dropDown.config(width=11,bg = "#81899f")
 
@@ -59,7 +59,7 @@ class header:
 
         self.ConnectionTypes = tk.OptionMenu(self.canvas, self.CType, *self.UserOPTIONSNetwork)
         self.ConnectionTypes.grid(column = 0, row = 1)
-        self.ConnectionTypes.config(width=15, bg="#81899f")
+        self.ConnectionTypes.config(width=17, bg="#81899f")
 
         #status indicator
         '''

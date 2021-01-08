@@ -61,7 +61,7 @@ def init_default_window(master, style):
     global text_font
     global app_font
     button_width = 20
-    button_height = 25
+    button_height = 10
     button_padding = 15
     button_font = ('Helvetica Bold', 10)
     text_font = ('Helvetica', 11)
@@ -76,17 +76,29 @@ def init_default_window(master, style):
     master.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
     style.theme_use('clam')
+
     #coloured button styles
     style.configure('gui.TButton',
                          foreground='black',
-                         background = blue,
+                         background = 'white',
                          width = button_width,
                          height = button_height,
-                         relief = 'flat',
+                         relief = 'ridged',
                          padding = button_padding,
                          font = button_font,
                          wrap=tk.WORD)
     style.map('gui.TButton',background = [('pressed', black),('disabled',grey)])
+
+    style.configure('popup.TButton',
+                         foreground='black',
+                         background = nice_blue,
+                         width = button_width/4,
+                         height = button_height/2,
+                         relief = 'flat',
+                         padding = button_padding,
+                         font=('Helvetica Bold', 12),
+                         wrap=tk.WORD)
+    style.map('popup.TButton',background = [('pressed', nice_blue),('disabled',grey)])
 
 
     #footer button
@@ -103,10 +115,13 @@ def init_default_window(master, style):
     style.configure('tight.TButton', padding=button_padding*0.5, width=0)#flat and tight
 
     #generic frame style
-    style.configure('TFrame', background='white', bd=0)
+    style.configure('TFrame', background='#81899f', bd=0)
 
 
-    style.configure('TLabel', background='white', font=('Helvetica Bold', 20), wrap=tk.WORD)
+    style.configure('TLabel', background='#81899f', font=('Helvetica Bold', 20), wrap=tk.WORD)
+    style.configure('p.TLabel', background='#81899f', font=('Helvetica Bold', 16), wrap=tk.WORD)
+
+    style.configure('E.TLabel', background='#81899f',foreground = '#CC0000', font=('Helvetica Bold', 16), wrap=tk.WORD)
 
     style.configure('pageLabel', background = 'red')
 

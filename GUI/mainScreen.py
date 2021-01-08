@@ -17,20 +17,20 @@ class mainScreen:
 
         #center frame that fits between the header and footer
         self.screenFrame = tk.Frame(self.mainFrame, bg="#2A363B")
-        '''for rows in range (0,5):
-            self.leftFrame.rowconfigure(rows, weight = 1)
-        for columns in range(0,5):
-            self.leftFrame.columnconfigure(columns, weight = 1)
-        '''
+        for rows in range (0,10):
+            self.screenFrame.rowconfigure(rows, weight = 1)
+        for columns in range(0,10):
+            self.screenFrame.columnconfigure(columns, weight = 1)
         #### define center frame widgets
 
         #Serial Stream Button
-        '''
-        self.serialData = ttk.Button(self.screenFrame,
+
+        self.calibrateButton = ttk.Button(self.screenFrame,
                                      text = 'Start Serial Connection',
                                      style = 'gui.TButton')
-        self.serialData.grid(column = 0, row = 1)
-
+        self.calibrateButton.grid(column = 0, row = 0)
+        #self.calibrateButton.place(x=20,y=20)
+        '''
         #Make LSL Connection
         self.connectLSL = ttk.Button(self.screenFrame,
                                      text = 'Look for LSL Connection',
