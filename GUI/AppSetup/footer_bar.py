@@ -1,4 +1,5 @@
 import tkinter as tk
+import os
 from tkinter import ttk
 from PIL import ImageTk, Image
 from .window_setup import *
@@ -47,7 +48,10 @@ class footer:
         self.backButton.grid(column = 2, row = 0, sticky='e')
         '''
         #logo image
-        self.load = Image.open("/Users/billalrahimi/Desktop/Capstone/GUI/AppSetup/Graphics/GEN_C_LOGO.png")
+        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+        rel_path = "Graphics/GEN_C_LOGO.png"
+        abs_file_path = os.path.join(script_dir, rel_path)
+        self.load = Image.open(abs_file_path)
         self.render = ImageTk.PhotoImage(self.load)
 
         self.logoButton = ttk.Button(self.canvas,
