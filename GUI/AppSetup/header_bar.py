@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-
+import os
 from AppSetup.window_setup import *
 
 class header:
@@ -39,6 +39,18 @@ class header:
         self.UserOPTIONS = [
         "New User..."
         ]
+        #First obtain any users from previously put added
+        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+        script_dir = os.path.dirname(script_dir)
+        rel_path = "/UserData/"
+        abs_file_path = script_dir + rel_path
+        for exusername in os.listdir(abs_file_path):
+            split = os.path.splitext(exusername)
+            if split[0] == ".DS_Store":
+                pass
+            else:
+                self.UserOPTIONS.append(str(split[0]))
+
 
         self.user = tk.StringVar()
         self.user.set("User") # default value
@@ -75,3 +87,9 @@ class header:
 
 
         self.canvas.pack(fill='x', ipady = 3, side=tk.TOP)
+
+        def newUser(self, name):
+            self.UserOPTIONS.append(name)
+            self.dropDown = tk.OptionMenu(self.canvas, self.user, *self.UserOPTIONS)
+            self.dropDown.grid(column = 29, row = 1)
+            self.dropDown.config(width=11,bg = "#81899f")

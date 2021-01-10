@@ -25,6 +25,8 @@ class base_app:
             self.removable_frame = removable_frame
         self.master.configure(bg = 'white')
 
+        #Initialize data storage folder
+        self.dataFolder()
         #Master Styles
         self.style = ttk.Style()
         winSet.init_default_window(self.master, self.style)
@@ -42,7 +44,7 @@ class base_app:
         self._countdown_to_quit = 5
         self._countdown_time = time.time()
 
-        
+
 
 
     def quitApp(self):
@@ -75,6 +77,16 @@ class base_app:
             for f in funcs:
                 f(*args, **kwargs)
         return combined_func
+
+    def dataFolder(self):
+        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+        rel_path = "UserData"
+        abs_file_path = os.path.join(script_dir, rel_path)
+
+        if os.path.isdir(abs_file_path):
+            pass
+        else:
+            os.mkdir(abs_file_path)
 
 #Launcher
 #######################################

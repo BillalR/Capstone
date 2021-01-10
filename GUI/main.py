@@ -33,17 +33,19 @@ class home(base_app):
         self.footer.logoButton.configure(command=self.infoLogo)
 
         #Trace calls from drop down menus
-        self.header.user.trace("w", self.newUser)
+        self.header.user.trace("w", self.switchUser)
         self.header.CType.trace("w", self.runNetwork)
 
         #Popup init
         self.messageWindow = pop.popupWindow(self.master)
-        #Initalize user data folder
-        self.dataFolder()
 
-    def newUser(self, *args):
-        self.master.focus()
-        self.messageWindow.popupNewUser(0)
+    def switchUser(self, *args):
+        if self.header.user.get() == "New User...":
+            self.messageWindow.t1.set("")
+            self.messageWindow.popupNewUser(0)
+            self.updateUserSelection()
+        else:
+            pass
 
     def UDPTest(self):
         data, addr = self.socket.recvfrom(2000)
@@ -58,7 +60,6 @@ class home(base_app):
                 channel_data[i] = sample
             else:
                 channel_data[i].append(sample)
-        #print(channel_data)
         self.master.after(50, self.lslTest)
 
     def serverConnect(self):
@@ -90,15 +91,17 @@ class home(base_app):
         else:
             pass
 
-    def dataFolder(self):
-        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-        rel_path = "UserData"
-        abs_file_path = os.path.join(script_dir, rel_path)
-
-        if os.path.isdir(abs_file_path):
-            pass
+    def updateUserSelection(self):
+        if self.messageWindow.userFlag == True:
+            self.messageWindow.userFlag = False
+            self.header.UserOPTIONS.append(self.messageWindow.t1.get())
+            self.header.user.set(self.messageWindow.t1.get())
+            self.header.dropDown.children['menu'].add_command(label=self.messageWindow.t1.get(), command=lambda usr=self.messageWindow.t1.get(): self.header.user.set(usr))
+            return
         else:
-            os.mkdir(abs_file_path)
+            pass
+        self.master.after(50, self.updateUserSelection)
+
 
 
 

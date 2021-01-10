@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import os
+from AppSetup.base_app import *
 
 class popupWindow:
 
@@ -162,10 +163,16 @@ class popupWindow:
             self.popupFrame.pack(expand = 1, fill = 'both')
 
     def closePopup(self):
-        #self.p.stop()
+        self.p.stop()
         self.popupFrame.destroy()
         self.popup_window.destroy()
         self.popup_window = None
+
+    def closePopupNewUser(self):
+        self.popupFrame.destroy()
+        self.popup_window.destroy()
+        self.popup_window = None
+
 
     def userCSV(self):
         script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
@@ -173,9 +180,9 @@ class popupWindow:
         rel_path = "/UserData/"
         abs_file_path = os.path.join(script_dir, rel_path)
         if os.path.isfile(script_dir + rel_path + str(self.t1.get()) + ".csv"):
-            self.closePopup()
+            self.closePopupNewUser()
             self.popupNewUser(1)
         else:
             CSV = open(script_dir + rel_path + str(self.t1.get())+".csv","w+")
             self.userFlag = True
-            self.closePopup()
+            self.closePopupNewUser()
