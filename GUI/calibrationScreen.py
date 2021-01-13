@@ -3,10 +3,7 @@ from tkinter import ttk
 
 from AppSetup.window_setup import *
 
-#window edge padding
-pad = 5
-
-class mainScreen:
+class calibrationScreen:
 
     def __init__(self,master):
 
@@ -14,32 +11,31 @@ class mainScreen:
         self.mainFrame = tk.Frame(self.master, bg='white')
 
         #center frame that fits between the header and footer
-        self.screenFrame = tk.Frame(self.mainFrame, bg="#2A363B")
-
-        for rows in range (0,10):
-            self.screenFrame.rowconfigure(rows, weight = 1)
-        for columns in range(0,10):
-            self.screenFrame.columnconfigure(columns, weight = 1)
+        self.calibFrame = tk.Frame(self.mainFrame, bg="#2A363B")
+        for rows in range (0,20):
+            self.calibFrame.rowconfigure(rows, weight = 1)
+        for columns in range(0,150):
+            self.calibFrame.columnconfigure(columns, weight = 1)
         #### define center frame widgets
 
         #Serial Stream Button
-        '''
-        self.calibrateButton = ttk.Button(self.screenFrame,
+
+        self.calibrateButton = ttk.Button(self.calibFrame,
                                      text = 'Start Serial Connection',
                                      style = 'gui.TButton')
-        self.calibrateButton.grid(column = 0, row = 0, sticky = 'w')
+        self.calibrateButton.grid(column = 50, row = 0)
         #self.calibrateButton.place(x=20,y=20)
         '''
-
-        '''
         #Make LSL Connection
-        self.connectLSL = ttk.Button(self.screenFrame,
+        self.connectLSL = ttk.Button(self.calibFrame,
                                      text = 'Look for LSL Connection',
                                      style = 'gui.TButton')
         self.connectLSL.grid(column = 0, row = 0)
         '''
+
+
         #pack the center frame
-        self.screenFrame.pack(expand = 1, fill = 'both')
+        self.calibFrame.pack(expand = 1, fill = 'both')
 
 
 

@@ -15,10 +15,10 @@ class footer:
         self.canvas = tk.Canvas(self.master,
                                 height = self.footer_height,
                                 width = 800,
-                                bg = "#81899f",
+                                bg = "#2A363B",
                                 bd=0,
-                                highlightcolor = '#81899f',
-                                highlightbackground = "#81899f")
+                                highlightcolor = '#2A363B',
+                                highlightbackground = "#2A363B")
 
         for rows in range (0,1):
             self.canvas.rowconfigure(rows, weight = 1)
@@ -32,28 +32,24 @@ class footer:
         self.homeButton = ttk.Button(self.canvas,
                                      text = 'HOME',
                                      style = 'footer.TButton')
-        self.homeButton.grid(column = 0, row = 0, sticky='e')
+        self.homeButton.grid(column = 28, row = 0, sticky='e')
         '''
-        #settings button
-        '''
-        self.settingsButton = ttk.Button(self.canvas,
-                                     text = 'SETTINGS',
-                                     style = 'footer.TButton')
-        self.settingsButton.grid(column = 1, row = 0, sticky='e')
+
 
         #back button
+        '''
         self.backButton = ttk.Button(self.canvas,
                                      text = 'BACK',
                                      style = 'footer.TButton')
-        self.backButton.grid(column = 2, row = 0, sticky='e')
+        self.backButton.grid(column = 28, row = 0, sticky='e')
         '''
         #logo image
+
         script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
         rel_path = "Graphics/GEN_C_LOGO.png"
         abs_file_path = os.path.join(script_dir, rel_path)
         self.load = Image.open(abs_file_path)
         self.render = ImageTk.PhotoImage(self.load)
-
         self.logoButton = ttk.Button(self.canvas,
                                      image = self.render,
                                      style='flat.TButton')
@@ -61,5 +57,26 @@ class footer:
         #self.logoButton.config()
         self.logoButton.grid(column=0,row=0,columnspan=1,rowspan=1, sticky='w')
 
-
+        '''
+        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+        rel_path = "Graphics/floatingCircle.gif"
+        self.frameCnt = 30
+        abs_file_path = os.path.join(script_dir, rel_path)
+        self.load = Image.open(abs_file_path)
+        self.render = [ImageTk.PhotoImage(self.load,format = 'gif -index %i' %(i)) for i in range(self.frameCnt)]
+        self.logoButton = ttk.Button(self.canvas,
+                                     image = self.render[0],
+                                     style='flat.TButton')
+                                     #bg="#81899f")
+        #self.logoButton.config()
+        self.logoButton.grid(column=0,row=0,columnspan=1,rowspan=1, sticky='w')
+        '''
         self.canvas.pack(fill = 'x', ipady = 7, side=tk.BOTTOM)
+
+    def updateGif(self, ind):
+        frame = self.render[ind]
+        ind += 1
+        if ind == self.frameCnt:
+            ind = 0
+        self.logoButton.configure(image = frame)
+        self.master.after(5, self.updateGif, ind)

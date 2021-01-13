@@ -42,6 +42,7 @@ button_width = 20
 button_height = 25
 button_padding = 15
 button_font = ('Helvetica Bold', 10)
+button_font_menu = ('Helvetica Bold', 12)
 text_font = ('Helvetica', 11)
 app_font = ('Helvetica', 11)
 
@@ -78,32 +79,54 @@ def init_default_window(master, style):
     style.theme_use('clam')
 
     #coloured button styles
-    style.configure('gui.TButton',
+    style.configure('unpressed.TButton',
                          foreground='black',
-                         background = 'white',
+                         background = '#81899f',
                          width = button_width,
                          height = button_height,
                          relief = 'ridged',
                          padding = button_padding,
-                         font = button_font,
+                         font = button_font_menu,
                          wrap=tk.WORD)
-    style.map('gui.TButton',background = [('pressed', black),('disabled',grey)])
+    style.map('unpressed.TButton',background = [('pressed', "#81899f"),('disabled',grey)],foreground=[('active', "#2A363B"), ('pressed', '#2A363B')])
+
+    style.configure('pressed.TButton',
+                         foreground='#BEBBBB',
+                         background = '#2A363B',
+                         width = button_width,
+                         height = button_height,
+                         relief = 'ridged',
+                         padding = button_padding,
+                         font = button_font_menu,
+                         wrap=tk.WORD)
+    style.map('pressed.TButton',background = [('pressed', "#81899f"),('disabled',grey)],foreground=[('active', "#BEBBBB"), ('pressed', '#2A363B')])
 
     style.configure('popup.TButton',
                          foreground='black',
-                         background = nice_blue,
+                         background = "#7EC4CF",
                          width = button_width/4,
                          height = button_height/2,
                          relief = 'flat',
                          padding = button_padding,
                          font=('Helvetica Bold', 12),
                          wrap=tk.WORD)
-    style.map('popup.TButton',background = [('pressed', nice_blue),('disabled',grey)])
+    style.map('popup.TButton',background = [('pressed', "#7EC4CF"),('disabled',grey)])
+
+    style.configure('popup2.TButton',
+                         foreground='black',
+                         background = "#C7EBF0",
+                         width = 10,
+                         height = button_height/3,
+                         relief = 'flat',
+                         padding = button_padding*0.5,
+                         font=('Helvetica Bold', 12),
+                         wrap=tk.WORD)
+    style.map('popup2.TButton',background = [('pressed', "#C7EBF0"),('disabled',grey)])
 
 
     #footer button
-    style.configure('footer.TButton', foreground='white', background = blue, width = 10, height = footer_height, relief = 'flat', padding = button_padding, font = button_font, wrap=tk.WORD)
-    style.map('footer.TButton',background = [('active', blue)])
+    style.configure('footer.TButton', foreground='white', background = "#7EC4CF", width = 10, height = footer_height, relief = 'flat', padding = button_padding, font = button_font, wrap=tk.WORD)
+    style.map('footer.TButton',background = [('active', "#7EC4CF")])
 
     #big button
     style.configure('big.TButton', foreground='white', background = '#14B9D6', width = 5, height = 25, relief = 'flat', padding = 10, font = ('Helvetica Bold', 30),wrap=tk.WORD)
@@ -121,7 +144,7 @@ def init_default_window(master, style):
     style.configure('TLabel', background='#81899f', font=('Helvetica Bold', 20), wrap=tk.WORD)
     style.configure('p.TLabel', background='#81899f', font=('Helvetica Bold', 16), wrap=tk.WORD)
 
-    style.configure('E.TLabel', background='#81899f',foreground = '#CC0000', font=('Helvetica Bold', 16), wrap=tk.WORD)
+    style.configure('E.TLabel', background='#81899f',foreground = '#C7EBF0', font=('Helvetica Bold', 16), wrap=tk.WORD)
 
     style.configure('pageLabel', background = 'red')
 

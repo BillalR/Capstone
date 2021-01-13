@@ -17,7 +17,7 @@ class header:
                                 bd=0,
                                 highlightcolor = light_grey,
                                 highlightbackground = "#81899f")
-        for rows in range (0,3):
+        for rows in range (0,1):
             self.canvas.rowconfigure(rows, weight = 1)
         for columns in range(0,30):
             self.canvas.columnconfigure(columns, weight = 1)
@@ -33,7 +33,7 @@ class header:
                         bg = "#81899f")
 
 
-        self.title.grid(column=14,row=0,columnspan=1,rowspan=3)
+        self.title.grid(column=13,row=0,columnspan=2,rowspan=3)
 
         #Drop down menu for users
         self.UserOPTIONS = [
@@ -49,14 +49,14 @@ class header:
             if split[0] == ".DS_Store":
                 pass
             else:
-                self.UserOPTIONS.append(str(split[0]))
+                self.UserOPTIONS.insert(0, str(split[0]))
 
 
         self.user = tk.StringVar()
         self.user.set("User") # default value
 
         self.dropDown = tk.OptionMenu(self.canvas, self.user, *self.UserOPTIONS)
-        self.dropDown.grid(column = 29, row = 1)
+        self.dropDown.grid(column = 29, row = 0, columnspan=1,ipadx=10)
         self.dropDown.config(width=11,bg = "#81899f")
 
 
@@ -70,7 +70,7 @@ class header:
         self.CType.set("Connection Type") # default value
 
         self.ConnectionTypes = tk.OptionMenu(self.canvas, self.CType, *self.UserOPTIONSNetwork)
-        self.ConnectionTypes.grid(column = 0, row = 1)
+        self.ConnectionTypes.grid(column = 0, row = 0, sticky='w', padx=10)
         self.ConnectionTypes.config(width=17, bg="#81899f")
 
         #status indicator
