@@ -13,10 +13,10 @@ class header:
         self.canvas = tk.Canvas(self.master,
                                 height = self.header_height,
                                 width = 800,
-                                bg = "#81899f",
+                                bg = border_color,
                                 bd=0,
                                 highlightcolor = light_grey,
-                                highlightbackground = "#81899f")
+                                highlightbackground = border_color)
         for rows in range (0,1):
             self.canvas.rowconfigure(rows, weight = 1)
         for columns in range(0,30):
@@ -24,6 +24,7 @@ class header:
 
 
         #title
+        '''
         self.pageName = tk.StringVar()
         self.pageName.set("Home")
 
@@ -34,7 +35,8 @@ class header:
 
 
         self.title.grid(column=13,row=0,columnspan=2,rowspan=3)
-
+        '''
+        
         #Drop down menu for users
         self.UserOPTIONS = [
         "New User..."

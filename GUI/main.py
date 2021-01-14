@@ -2,7 +2,8 @@
 from AppSetup.base_app import *
 #import the screens
 from mainScreen import *
-from calibrationScreen import *
+from calibrationScreen1 import *
+from calibrationScreen2 import *
 from testingScreen import *
 from quickScreen import *
 from keyboardScreen import *
@@ -15,7 +16,8 @@ class home(base_app):
         self.master = master
 
         self.SCR_MAIN = -1
-        self.SCR_CALIBRATION = -1
+        self.SCR_CALIBRATION1 = -1
+        self.SCR_CALIBRATION2 = -1
         self.SCR_TESTING = -1
         self.SCR_QUICK = -1
         self.SCR_KEYBOARD = -1
@@ -34,19 +36,27 @@ class home(base_app):
         self.numScreens += 1
         self.screens.append(mainScreen(self.frame))
 
-        #Calibration Screen Initialize and Configuration
-        self.SCR_CALIBRATION = self.numScreens
+        #Calibration Screen 2 Initialize and Configuration
+        self.SCR_CALIBRATION2 = self.numScreens
         self.numScreens += 1
-        self.screens.append(calibrationScreen(self.frame))
+        self.screens.append(calibrationScreen2(self.frame))
 
-        #Load initial screen
+        #Calibration Screen 1 Initialize and Configuration
+        self.SCR_CALIBRATION1 = self.numScreens
+        self.numScreens += 1
+        self.screens.append(calibrationScreen1(self.frame))
+        #To forget about a button or label, use -- Grid Forget
+        #self.screens[self.SCR_CALIBRATION1].neautralImage.grid_forget()
+        self.screens[self.SCR_CALIBRATION1].neutralButtonCalibration.configure(command= lambda: self.switchScreen(self.SCR_CALIBRATION2, "Calibration"))
+
+        #Pack the initial screen
         self.screens[self.SCR_MAIN].pack()
         self.scrmap.append(self.SCR_MAIN)
 
         #Side Menu configuration
-        self.menuSelect.calibrateScreenButton.configure(command=self.combine_funcs(self.headsetCalibration, lambda: thread.Thread(target=self.switchScreen(self.SCR_CALIBRATION, "Calibration")).start()))
+        self.menuSelect.calibrateScreenButton.configure(command=self.combine_funcs(self.headsetCalibration, lambda: self.switchScreen(self.SCR_CALIBRATION1, "Calibration")))
         self.menuSelect.homeButton.configure(command= lambda: self.switchScreen(self.SCR_MAIN, "Home"), style="pressed.TButton")
-        self.menuSelect.testButton.configure(command=lambda: self.switchScreen(self.SCR_TESTING, "Testing"),  style="unpressed.TButton")
+        self.menuSelect.testButton.configure(command= lambda: self.switchScreen(self.SCR_TESTING, "Testing"),  style="unpressed.TButton")
         self.menuSelect.quickButton.configure(command=lambda: self.switchScreen(self.SCR_QUICK, "Quick Menu"), style="unpressed.TButton")
         self.menuSelect.keyboardButton.configure(command=lambda: self.switchScreen(self.SCR_KEYBOARD, "Keyboard"), style="unpressed.TButton")
 
@@ -134,8 +144,10 @@ class home(base_app):
             return
 
         #Change title of page and select the right button background
+        '''
         self.screenName.set(str(page))
         self.header.title.configure(textvariable=self.screenName)
+        '''
 
         if page == "Calibration":
             self.menuSelect.quickButton.configure(style="unpressed.TButton")

@@ -3,39 +3,15 @@
 import tkinter as tk
 from tkinter import ttk
 
-#from .header_bar import *
 
-#orange
-orange = '#F47920'
-
-#green
-green = '#55A098'
-br_green = '#3CDB4C'
-#gui_green = '#0ddb36'
-
-#yellow
-yellow  = '#E7EC59'
-
-#blue
-blue = '#6620f4'
-
-#nice blue
-#blue = '#14B9D6'
-nice_blue = '#00bfb3'
-
-#grey
-gui_grey = '#232A34'
 grey = '#E4E4E4'
 black = "#000000"
 
 #lighter grey for scroll bars
 light_grey = '#D3D7DA'
-
-#lightest grey for backgrounds
-lightest_grey = '#EFF0F2'
-
-#red
-red = '#A05558'
+border_color = "#81899f"
+background_color = "#2A363B"
+text_over_color = "#3dabd9"
 
 
 button_width = 20
@@ -61,6 +37,8 @@ def init_default_window(master, style):
     global button_font
     global text_font
     global app_font
+    global background_color
+    global border_color
     button_width = 20
     button_height = 10
     button_padding = 15
@@ -81,26 +59,26 @@ def init_default_window(master, style):
     #coloured button styles
     style.configure('unpressed.TButton',
                          foreground='black',
-                         background = '#81899f',
+                         background = border_color,
                          width = button_width,
                          height = button_height,
                          relief = 'ridged',
                          padding = button_padding,
                          font = button_font_menu,
                          wrap=tk.WORD)
-    style.map('unpressed.TButton',background = [('pressed', "#81899f"),('disabled',grey)],foreground=[('active', "#2A363B"), ('pressed', '#2A363B')])
+    style.map('unpressed.TButton',background = [('pressed', border_color),('disabled',grey)],foreground=[('active', background_color), ('pressed', background_color)])
 
 
     style.configure('pressed.TButton',
                          foreground='#BEBBBB',
-                         background = '#2A363B',
+                         background = background_color,
                          width = button_width,
                          height = button_height,
                          relief = 'ridged',
                          padding = button_padding,
                          font = button_font_menu,
                          wrap=tk.WORD)
-    style.map('pressed.TButton',background = [('pressed', "#81899f"),('disabled',grey)],foreground=[('active', "#BEBBBB"), ('pressed', '#2A363B')])
+    style.map('pressed.TButton',background = [('pressed', border_color),('disabled',grey)],foreground=[('active', "#BEBBBB"), ('pressed', background_color)])
 
     style.configure('popup.TButton',
                          foreground='black',
@@ -131,7 +109,7 @@ def init_default_window(master, style):
 
     #big button
     style.configure('big.TButton', foreground='white', background = '#14B9D6', width = 5, height = 25, relief = 'flat', padding = 10, font = ('Helvetica Bold', 30),wrap=tk.WORD)
-    style.map('big.TButton', background = [('active', blue)])
+    style.map('big.TButton', background = [('active', 'white')])
 
     #small buttons
     style.configure('short.TButton', padding=button_padding*0.5)#flat and wide
@@ -139,23 +117,33 @@ def init_default_window(master, style):
     style.configure('tight.TButton', padding=button_padding*0.5, width=0)#flat and tight
 
     #generic frame style
-    style.configure('TFrame', background='#81899f', bd=0)
+    style.configure('TFrame', background=border_color, bd=0)
 
 
-    style.configure('TLabel', background='#81899f', font=('Helvetica Bold', 20), wrap=tk.WORD)
-    style.configure('p.TLabel', background='#81899f', font=('Helvetica Bold', 16), wrap=tk.WORD)
+    style.configure('TLabel', background=border_color, font=('Helvetica Bold', 20), wrap=tk.WORD)
+    style.configure('p.TLabel', background=border_color, font=('Helvetica Bold', 16), wrap=tk.WORD)
+    style.configure('overBackground.TLabel', background=background_color,foreground=text_over_color, font=('Helvetica Bold', 20), wrap=tk.WORD)
 
-    style.configure('E.TLabel', background='#81899f',foreground = '#C7EBF0', font=('Helvetica Bold', 16), wrap=tk.WORD)
+    style.configure('E.TLabel', background=border_color,foreground = '#C7EBF0', font=('Helvetica Bold', 16), wrap=tk.WORD)
 
     #style.configure('pageLabel', background = 'red')
 
     #All of this below might need to be removed, it might tamper with other button styles
-    #style.configure("TMenubutton", background="#81899f")
-    style.configure('flat.TButton',borderwidth=0,background="#81899f",bd=-2)
+    #style.configure("TMenubutton", background=border_color)
+    style.configure('flat.TButton',borderwidth=0,background=border_color,bd=-2)
 
     style.map('flat.TButton',foreground=[('disabled', light_grey),
-                    ('pressed', '#81899f'),
-                    ('active', '#81899f')],
-        background=[('active', '#81899f')],
-        highlightcolor=[('focus', '#81899f'),
-                        ('!focus', '#81899f')])
+                    ('pressed', border_color),
+                    ('active', border_color)],
+        background=[('active', border_color)],
+        highlightcolor=[('focus', border_color),
+                        ('!focus', border_color)])
+
+    style.configure('image.TButton',borderwidth=0,background=background_color,bd=-2)
+
+    style.map('image.TButton',foreground=[('disabled', light_grey),
+                    ('pressed', background_color),
+                    ('active', background_color)],
+        background=[('active', background_color)],
+        highlightcolor=[('focus', background_color),
+                        ('!focus', background_color)])

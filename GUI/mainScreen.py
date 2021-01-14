@@ -11,10 +11,10 @@ class mainScreen:
     def __init__(self,master):
 
         self.master = master
-        self.mainFrame = tk.Frame(self.master, bg='white')
+        self.mainFrame = tk.Frame(self.master, bg=background_color)
 
         #center frame that fits between the header and footer
-        self.screenFrame = tk.Frame(self.mainFrame, bg="#2A363B")
+        self.screenFrame = tk.Frame(self.mainFrame, bg=background_color)
 
         for rows in range (0,10):
             self.screenFrame.rowconfigure(rows, weight = 1)
