@@ -186,10 +186,11 @@ class popupWindow:
         script_dir = os.path.dirname(script_dir)
         rel_path = "/UserData/"
         abs_file_path = os.path.join(script_dir, rel_path)
-        if os.path.isfile(script_dir + rel_path + str(self.t1.get()) + ".csv"):
+        if os.path.isfile(script_dir + rel_path + str(self.t1.get())):
             self.closePopupNewUser()
             self.popupNewUser(1)
         else:
-            CSV = open(script_dir + rel_path + str(self.t1.get())+".csv","w+")
+            #CSV= open(script_dir + rel_path + str(self.t1.get())+".csv","w+")
+            File = os.mkdir(script_dir + rel_path + str(self.t1.get()))
             self.userFlag = True
             self.closePopupNewUser()

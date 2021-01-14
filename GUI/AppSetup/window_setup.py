@@ -90,6 +90,7 @@ def init_default_window(master, style):
                          wrap=tk.WORD)
     style.map('unpressed.TButton',background = [('pressed', "#81899f"),('disabled',grey)],foreground=[('active', "#2A363B"), ('pressed', '#2A363B')])
 
+
     style.configure('pressed.TButton',
                          foreground='#BEBBBB',
                          background = '#2A363B',
@@ -146,10 +147,10 @@ def init_default_window(master, style):
 
     style.configure('E.TLabel', background='#81899f',foreground = '#C7EBF0', font=('Helvetica Bold', 16), wrap=tk.WORD)
 
-    style.configure('pageLabel', background = 'red')
+    #style.configure('pageLabel', background = 'red')
 
     #All of this below might need to be removed, it might tamper with other button styles
-    style.configure("TMenubutton", background="#81899f")
+    #style.configure("TMenubutton", background="#81899f")
     style.configure('flat.TButton',borderwidth=0,background="#81899f",bd=-2)
 
     style.map('flat.TButton',foreground=[('disabled', light_grey),

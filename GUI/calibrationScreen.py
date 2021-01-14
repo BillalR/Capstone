@@ -19,20 +19,11 @@ class calibrationScreen:
         #### define center frame widgets
 
         #Serial Stream Button
-
         self.calibrateButton = ttk.Button(self.calibFrame,
                                      text = 'Start Serial Connection',
                                      style = 'gui.TButton')
         self.calibrateButton.grid(column = 50, row = 0)
         #self.calibrateButton.place(x=20,y=20)
-        '''
-        #Make LSL Connection
-        self.connectLSL = ttk.Button(self.calibFrame,
-                                     text = 'Look for LSL Connection',
-                                     style = 'gui.TButton')
-        self.connectLSL.grid(column = 0, row = 0)
-        '''
-
 
         #pack the center frame
         self.calibFrame.pack(expand = 1, fill = 'both')
