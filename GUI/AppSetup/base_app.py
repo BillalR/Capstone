@@ -5,6 +5,7 @@ from tkinter import ttk
 import time
 import serial
 import socket
+import threading as thread
 from pylsl import StreamInlet, resolve_stream
 
 #Import window components
@@ -28,6 +29,7 @@ class base_app:
 
         #Initialize data storage folder
         self.dataFolder()
+
         #Master Styles
         self.style = ttk.Style()
         winSet.init_default_window(self.master, self.style)
@@ -37,7 +39,7 @@ class base_app:
 
         self.header = header_bar.header(self.removable_frame)
         #self.footer = footer_bar.footer(self.removable_frame)
-        self.leftSide = menu.sideMenu(self.removable_frame)
+        self.menuSelect = menu.sideMenu(self.removable_frame)
         #init the center screen (screens need to be placed on this frame)
         self.frame = ttk.Frame(self.removable_frame, style='TFrame')
         self.frame.pack(expand = 1, fill = 'both')

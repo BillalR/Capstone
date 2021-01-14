@@ -2,12 +2,12 @@
 from AppSetup.base_app import *
 #import the screens
 from mainScreen import *
-from calibrationScreen import *
+from calibrationScreen1 import *
+from calibrationScreen2 import *
 from testingScreen import *
 from quickScreen import *
 from keyboardScreen import *
 
-#commit test 2#
 
 class home(base_app):
     def __init__(self, master):
@@ -16,10 +16,11 @@ class home(base_app):
         self.master = master
 
         self.SCR_MAIN = -1
-        self.SCR_CALIBRATION = -1
+        self.SCR_CALIBRATION1 = -1
+        self.SCR_CALIBRATION2 = -1
         self.SCR_TESTING = -1
-        #self.SCR_TESTING = -1
-
+        self.SCR_QUICK = -1
+        self.SCR_KEYBOARD = -1
 
         ##Define array of screens
         self.screens = []
@@ -30,44 +31,34 @@ class home(base_app):
         self.screenName = tk.StringVar()
         self.screenName.set("")
 
-
         #Main screen Initialize and Configuration
         self.SCR_MAIN = self.numScreens
         self.numScreens += 1
         self.screens.append(mainScreen(self.frame))
 
-        #Calibration Screen Initialize and Configuration
-        self.SCR_CALIBRATION = self.numScreens
+        #Calibration Screen 2 Initialize and Configuration
+        self.SCR_CALIBRATION2 = self.numScreens
         self.numScreens += 1
-        self.screens.append(calibrationScreen(self.frame))
+        self.screens.append(calibrationScreen2(self.frame))
 
-        # Testing Screen Initialize and Configuration - DK
-        self.SCR_TESTING = self.numScreens
+        #Calibration Screen 1 Initialize and Configuration
+        self.SCR_CALIBRATION1 = self.numScreens
         self.numScreens += 1
-        self.screens.append(testingScreen(self.frame))
+        self.screens.append(calibrationScreen1(self.frame))
+        #To forget about a button or label, use -- Grid Forget
+        #self.screens[self.SCR_CALIBRATION1].neautralImage.grid_forget()
+        self.screens[self.SCR_CALIBRATION1].neutralButtonCalibration.configure(command= lambda: self.switchScreen(self.SCR_CALIBRATION2, "Calibration"))
 
-        # Quick Menu Screen Initialize and Configuration - DK
-        self.SCR_QUICK = self.numScreens
-        self.numScreens += 1
-        self.screens.append(quickScreen(self.frame))
-
-        # Keyboard Screen Initialize and Configuration - DK
-        self.SCR_KEYBOARD = self.numScreens
-        self.numScreens += 1
-        self.screens.append(keyboardScreen(self.frame))
-
-        #Load initial screen
+        #Pack the initial screen
         self.screens[self.SCR_MAIN].pack()
         self.scrmap.append(self.SCR_MAIN)
 
-        #Footer information button
-        #self.leftSide.logoButton.configure(command=self.infoLogo)
-        self.leftSide.calibrateScreenButton.configure(command=self.combine_funcs(self.headsetCalibration, lambda: self.switchScreen(self.SCR_CALIBRATION, "Calibration")))
-        self.leftSide.homeButton.configure(command= lambda: self.switchScreen(self.SCR_MAIN, "Home"), style="pressed.TButton")
-        self.leftSide.testButton.configure(command=lambda: self.switchScreen(self.SCR_TESTING, "Testing"),  style="unpressed.TButton")
-        self.leftSide.quickButton.configure(command=lambda: self.switchScreen(self.SCR_QUICK, "Quick Menu"), style="unpressed.TButton")
-        self.leftSide.keyboardButton.configure(command=lambda: self.switchScreen(self.SCR_KEYBOARD, "Keyboard"), style="unpressed.TButton")
-
+        #Side Menu configuration
+        self.menuSelect.calibrateScreenButton.configure(command=self.combine_funcs(self.headsetCalibration, lambda: self.switchScreen(self.SCR_CALIBRATION1, "Calibration")))
+        self.menuSelect.homeButton.configure(command= lambda: self.switchScreen(self.SCR_MAIN, "Home"), style="pressed.TButton")
+        self.menuSelect.testButton.configure(command= lambda: self.switchScreen(self.SCR_TESTING, "Testing"),  style="unpressed.TButton")
+        self.menuSelect.quickButton.configure(command=lambda: self.switchScreen(self.SCR_QUICK, "Quick Menu"), style="unpressed.TButton")
+        self.menuSelect.keyboardButton.configure(command=lambda: self.switchScreen(self.SCR_KEYBOARD, "Keyboard"), style="unpressed.TButton")
 
         #Trace calls from drop down menus
         self.header.user.trace("w", self.switchUser)
@@ -141,7 +132,7 @@ class home(base_app):
             pass
         self.master.after(50, self.updateUserSelection)
 
-    def switchScreen(self, ID, pagename):
+    def switchScreen(self, ID, page):
         if ID < 0:
             pass
         elif ID >= self.numScreens:
@@ -153,38 +144,42 @@ class home(base_app):
             return
 
         #Change title of page and select the right button background
-        self.screenName.set(str(pagename))
+        '''
+        self.screenName.set(str(page))
         self.header.title.configure(textvariable=self.screenName)
-        if pagename == "Calibration":
-            self.leftSide.quickButton.configure(style="unpressed.TButton")
-            self.leftSide.homeButton.configure(style="unpressed.TButton")
-            self.leftSide.calibrateScreenButton.configure(style="pressed.TButton")
-            self.leftSide.testButton.configure(style="unpressed.TButton")
-            self.leftSide.keyboardButton.configure(style="unpressed.TButton")
-        elif pagename == "Home":
-            self.leftSide.quickButton.configure(style="unpressed.TButton")
-            self.leftSide.homeButton.configure(style="pressed.TButton")
-            self.leftSide.calibrateScreenButton.configure(style="unpressed.TButton")
-            self.leftSide.testButton.configure(style="unpressed.TButton")
-            self.leftSide.keyboardButton.configure(style="unpressed.TButton")
-        elif pagename == "Testing":
-            self.leftSide.quickButton.configure(style="unpressed.TButton")
-            self.leftSide.calibrateScreenButton.configure(style="unpressed.TButton")
-            self.leftSide.homeButton.configure(style="unpressed.TButton")
-            self.leftSide.testButton.configure(style="pressed.TButton")
-            self.leftSide.keyboardButton.configure(style="unpressed.TButton")
-        elif pagename == "Quick Menu":
-            self.leftSide.testButton.configure(style="unpressed.TButton")
-            self.leftSide.calibrateScreenButton.configure(style="unpressed.TButton")
-            self.leftSide.homeButton.configure(style="unpressed.TButton")
-            self.leftSide.quickButton.configure(style="pressed.TButton")
-            self.leftSide.keyboardButton.configure(style="unpressed.TButton")
-        elif pagename == "Keyboard":
-            self.leftSide.testButton.configure(style="unpressed.TButton")
-            self.leftSide.calibrateScreenButton.configure(style="unpressed.TButton")
-            self.leftSide.homeButton.configure(style="unpressed.TButton")
-            self.leftSide.quickButton.configure(style="unpressed.TButton")
-            self.leftSide.keyboardButton.configure(style="pressed.TButton")
+        '''
+
+        if page == "Calibration":
+            self.menuSelect.quickButton.configure(style="unpressed.TButton")
+            self.menuSelect.homeButton.configure(style="unpressed.TButton")
+            self.menuSelect.calibrateScreenButton.configure(style="pressed.TButton")
+            self.menuSelect.testButton.configure(style="unpressed.TButton")
+            self.menuSelect.keyboardButton.configure(style="unpressed.TButton")
+        elif page == "Home":
+            self.menuSelect.quickButton.configure(style="unpressed.TButton")
+            self.menuSelect.homeButton.configure(style="pressed.TButton")
+            self.menuSelect.calibrateScreenButton.configure(style="unpressed.TButton")
+            self.menuSelect.testButton.configure(style="unpressed.TButton")
+            self.menuSelect.keyboardButton.configure(style="unpressed.TButton")
+        elif page == "Testing":
+            self.menuSelect.quickButton.configure(style="unpressed.TButton")
+            self.menuSelect.calibrateScreenButton.configure(style="unpressed.TButton")
+            self.menuSelect.homeButton.configure(style="unpressed.TButton")
+            self.menuSelect.testButton.configure(style="pressed.TButton")
+            self.menuSelect.keyboardButton.configure(style="unpressed.TButton")
+        elif page == "Quick Menu":
+            self.menuSelect.testButton.configure(style="unpressed.TButton")
+            self.menuSelect.calibrateScreenButton.configure(style="unpressed.TButton")
+            self.menuSelect.homeButton.configure(style="unpressed.TButton")
+            self.menuSelect.quickButton.configure(style="pressed.TButton")
+            self.menuSelect.keyboardButton.configure(style="unpressed.TButton")
+        elif page == "Keyboard":
+            self.menuSelect.testButton.configure(style="unpressed.TButton")
+            self.menuSelect.calibrateScreenButton.configure(style="unpressed.TButton")
+            self.menuSelect.homeButton.configure(style="unpressed.TButton")
+            self.menuSelect.quickButton.configure(style="unpressed.TButton")
+            self.menuSelect.keyboardButton.configure(style="pressed.TButton")
+
         self.master.focus()
         self.screens[self.scrmap[-1]].pack_forget()
         self.scrmap.append(ID)

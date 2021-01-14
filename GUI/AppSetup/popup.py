@@ -109,13 +109,13 @@ class popupWindow:
             self.popupFrame.columnconfigure(cols, weight = 1)
 
         self.popupLabel = ttk.Label(self.popupFrame, style='E.TLabel', text="You must select a user to continue calibration")
-        self.popupLabel.grid(column=0, row=1, rowspan=1, columnspan=2, padx=20, pady=0)
+        self.popupLabel.grid(column=0, row=0, rowspan=1, columnspan=2, padx=30, pady=0)
 
         self.okButton = ttk.Button(self.popupFrame,
                                      text = 'Ok',
                                      style = 'popup2.TButton',
                                      command = self.closePopupNewUser)
-        self.okButton.grid(column=0, row=2, rowspan=1, columnspan=2, padx=20, pady=0)
+        self.okButton.grid(column=0, row=1, rowspan=1, columnspan=2, padx=20, pady=0)
         self.popupFrame.pack(expand = 1, fill = 'both')
         self.popupFrame.focus()
 
@@ -186,10 +186,11 @@ class popupWindow:
         script_dir = os.path.dirname(script_dir)
         rel_path = "/UserData/"
         abs_file_path = os.path.join(script_dir, rel_path)
-        if os.path.isfile(script_dir + rel_path + str(self.t1.get()) + ".csv"):
+        if os.path.isfile(script_dir + rel_path + str(self.t1.get())):
             self.closePopupNewUser()
             self.popupNewUser(1)
         else:
-            CSV = open(script_dir + rel_path + str(self.t1.get())+".csv","w+")
+            #CSV= open(script_dir + rel_path + str(self.t1.get())+".csv","w+")
+            File = os.mkdir(script_dir + rel_path + str(self.t1.get()))
             self.userFlag = True
             self.closePopupNewUser()

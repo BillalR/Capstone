@@ -8,10 +8,10 @@ class testingScreen:
     def __init__(self,master):
 
         self.master = master
-        self.mainFrame = tk.Frame(self.master, bg='white')
+        self.mainFrame = tk.Frame(self.master, bg=background_color)
 
         #center frame that fits between the header and footer
-        self.testFrame = tk.Frame(self.mainFrame, bg="#2A363B")
+        self.testFrame = tk.Frame(self.mainFrame, bg=background_color)
         for rows in range (0,20):
             self.testFrame.rowconfigure(rows, weight = 1)
         for columns in range(0,150):

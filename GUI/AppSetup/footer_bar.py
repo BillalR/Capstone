@@ -15,10 +15,10 @@ class footer:
         self.canvas = tk.Canvas(self.master,
                                 height = self.footer_height,
                                 width = 800,
-                                bg = "#2A363B",
+                                bg = background_color,
                                 bd=0,
                                 highlightcolor = '#2A363B',
-                                highlightbackground = "#2A363B")
+                                highlightbackground = background_color)
 
         for rows in range (0,1):
             self.canvas.rowconfigure(rows, weight = 1)
