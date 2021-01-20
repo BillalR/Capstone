@@ -1,12 +1,17 @@
 #import base app package
 from AppSetup.base_app import *
+import pygame
+import threading
 #import the screens
 from mainScreen import *
 from calibrationScreen1 import *
 from calibrationScreen2 import *
+from calibrationScreen3 import *
+from calibrationScreen4 import *
 from testingScreen import *
 from quickScreen import *
 from keyboardScreen import *
+from knnML import *
 
 
 class home(base_app):
@@ -18,6 +23,8 @@ class home(base_app):
         self.SCR_MAIN = -1
         self.SCR_CALIBRATION1 = -1
         self.SCR_CALIBRATION2 = -1
+        self.SCR_CALIBRATION3 = -1
+        self.SCR_CALIBRATION4 = -1
         self.SCR_TESTING = -1
         self.SCR_QUICK = -1
         self.SCR_KEYBOARD = -1
@@ -31,15 +38,27 @@ class home(base_app):
         self.screenName = tk.StringVar()
         self.screenName.set("")
 
+        #Array lists of data
+        self.channel_data = {}
+
+        #Flags
+        self.read = False
+
         #Main screen Initialize and Configuration
         self.SCR_MAIN = self.numScreens
         self.numScreens += 1
         self.screens.append(mainScreen(self.frame))
 
+        #Calibration Screen 3 Initialize and Configuration
+        self.SCR_CALIBRATION3 = self.numScreens
+        self.numScreens += 1
+        self.screens.append(calibrationScreen3(self.frame))
+
         #Calibration Screen 2 Initialize and Configuration
         self.SCR_CALIBRATION2 = self.numScreens
         self.numScreens += 1
         self.screens.append(calibrationScreen2(self.frame))
+        self.screens[self.SCR_CALIBRATION2].neutralStateReadButton.configure(command= self.combine_funcs(lambda: self.switchScreen(self.SCR_CALIBRATION3, "Calibration"), self.combine_funcs(self.readNeutralData,self.countDown)))
 
         #Calibration Screen 1 Initialize and Configuration
         self.SCR_CALIBRATION1 = self.numScreens
@@ -67,6 +86,10 @@ class home(base_app):
         #Popup init
         self.messageWindow = pop.popupWindow(self.master)
 
+        #Initalize mixer for sound notifications
+        pygame.mixer.init()
+
+
     def switchUser(self, *args):
         if self.header.user.get() == "New User...":
             self.messageWindow.t1.set("")
@@ -80,6 +103,7 @@ class home(base_app):
         print(data)
         self.master.after(1000, self.comTest)
 
+    '''
     def lslTest(self):
         channel_data = {}
         for i in range(4): # each of the 4 channels here
@@ -90,6 +114,7 @@ class home(base_app):
                 channel_data[i].append(sample)
         print(channel_data)
         self.master.after(4, self.lslTest)
+    '''
 
     def serverConnect(self):
         if self.header.CType.get() == "UDP                    ":
@@ -99,7 +124,43 @@ class home(base_app):
 
         #Close popup
         self.messageWindow.closePopup()
-        self.lslTest()
+        #self.lslTest()
+
+    def readNeutralData(self):
+        if self.read == True:
+            for i in range(8):
+                sample,timestamp = self.inlet.pull_sample()
+                if i not in self.channel_data:
+                    self.channel_data[i] = sample
+                else:
+                    self.channel_data[i].append(sample)
+        else:
+            print(self.channel_data)
+            return
+        self.master.after(4,self.readNeutralData)
+
+    def generateKNNModel(self):
+        pass
+
+    def countDown(self):
+        self.read = True
+        if self.screens[self.SCR_CALIBRATION3].counter_1.get() > 0:
+            self.screens[self.SCR_CALIBRATION3].progressBar.start()
+            temp = self.screens[self.SCR_CALIBRATION3].counter_1.get() - 10
+            self.screens[self.SCR_CALIBRATION3].counter_1.set(int(temp))
+        else:
+            self.read = False
+            self.screens[self.SCR_CALIBRATION3].counter_1.set(30)
+            self.switchScreen(self.SCR_CALIBRATION1, "Calibration")
+            #Read in audio file for calibration completion
+            script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+            rel_path = "AppSetup/SoundNotifications/ding.mp3"
+            abs_file_path = os.path.join(script_dir, rel_path)
+            pygame.mixer.music.load(abs_file_path)
+            pygame.mixer.music.play(loops=0)
+            self.read = False
+            return
+        self.master.after(1000, self.countDown)
 
     def runNetwork(self, *args):
         #Initalize popup window class

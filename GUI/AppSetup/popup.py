@@ -30,9 +30,9 @@ class popupWindow:
         self.popupLabel = ttk.Label(self.popupFrame,style='TLabel', text="Connection is being established")
         self.popupLabel.grid(column=0, row=0, rowspan=1, columnspan=2, padx=20, pady=0)
 
-        self.p = ttk.Progressbar(self.popupFrame, orient=tk.HORIZONTAL,length=200,mode="indeterminate",takefocus=True,maximum=100)
-        self.p.grid(column=0, row=1, rowspan=1, columnspan=2, padx=20, pady=5)
-        self.p.start()
+        self.progressBar = ttk.Progressbar(self.popupFrame, orient=tk.HORIZONTAL,length=200,mode="indeterminate",takefocus=True,maximum=100)
+        self.progressBar.grid(column=0, row=1, rowspan=1, columnspan=2, padx=20, pady=5)
+        self.progressBar.start()
 
         self.popupLabel2 = ttk.Label(self.popupFrame,style='TLabel', text="Please wait until popup is destroyed")
         self.popupLabel2.grid(column=0, row=2, rowspan=1, columnspan=2, padx=20, pady=10)
@@ -169,7 +169,7 @@ class popupWindow:
             self.popupFrame.pack(expand = 1, fill = 'both')
 
     def closePopup(self):
-        self.p.stop()
+        self.progressBar.stop()
         self.popupFrame.destroy()
         self.popup_window.destroy()
         self.popup_window = None
