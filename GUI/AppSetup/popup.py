@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import os
+import csv
 from AppSetup.base_app import *
 
 class popupWindow:
@@ -11,6 +12,7 @@ class popupWindow:
         self.t1 = tk.StringVar()
         self.t1.set("")
         self.userFlag = False
+        self.neutralData = "/Neutral.csv"
 
     def popupConnection(self):
         self.popup_window = tk.Toplevel()
@@ -133,6 +135,8 @@ class popupWindow:
         for cols in range (0,1):
             self.popupFrame.columnconfigure(cols, weight = 1)
 
+        self.popupFrame.focus()
+
         if error == 0:
             self.popupLabel = ttk.Label(self.popupFrame, style='p.TLabel', text="User:")
             #popupLabel.grid(column=0, row=1, rowspan=1, columnspan=1, padx=0, pady=0)
@@ -190,7 +194,6 @@ class popupWindow:
             self.closePopupNewUser()
             self.popupNewUser(1)
         else:
-            #CSV= open(script_dir + rel_path + str(self.t1.get())+".csv","w+")
             File = os.mkdir(script_dir + rel_path + str(self.t1.get()))
             self.userFlag = True
             self.closePopupNewUser()

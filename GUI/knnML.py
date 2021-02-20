@@ -14,16 +14,17 @@ class KNN():
     def __init__(self, data):
 
         self.dataset = data
-
+        self.numChannels = 8
         self.nDataSetLength = len(self.dataset)
+
         #K values should be sqrt(N)
         if sqrt(self.nDataSetLength) % 2 == 0:
             self.k = int(sqrt(self.nDataSetLength)) + 1
         else:
             self.k = int(sqrt(self.nDataSetLength))
 
-        self.X = self.dataset.iloc[:, 0:2].values
-        self.Y = self.dataset.iloc[:, 2].values
+        self.X = self.dataset.iloc[:, 0:self.numChannels].values
+        self.Y = self.dataset.iloc[:, self.numChannels].values
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.Y, random_state=0, test_size=0.2)
 

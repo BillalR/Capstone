@@ -2,7 +2,11 @@
 from AppSetup.base_app import *
 import pygame
 import threading
-#import the screens
+import csv
+import numpy as np
+import pandas as pd
+
+#import the screens or models
 from mainScreen import *
 from calibrationScreen1 import *
 from calibrationScreen2 import *
@@ -39,15 +43,32 @@ class home(base_app):
         self.screenName.set("")
 
         #Array lists of data
+        self.channelNames = ["FP1","CZ","FZ","C3","C4","F3","O1","O2","Perception"]
         self.channel_data = {}
 
         #Flags
         self.read = False
+        self.startOnce = True
 
         #Main screen Initialize and Configuration
         self.SCR_MAIN = self.numScreens
         self.numScreens += 1
         self.screens.append(mainScreen(self.frame))
+
+        #Calibration Screen 3 Initialize and Configuration
+        self.SCR_TESTING = self.numScreens
+        self.numScreens += 1
+        self.screens.append(testingScreen(self.frame))
+
+        #Calibration Screen 3 Initialize and Configuration
+        self.SCR_QUICK = self.numScreens
+        self.numScreens += 1
+        self.screens.append(quickScreen(self.frame))
+
+        #Calibration Screen 3 Initialize and Configuration
+        self.SCR_KEYBOARD = self.numScreens
+        self.numScreens += 1
+        self.screens.append(keyboardScreen(self.frame))
 
         #Calibration Screen 3 Initialize and Configuration
         self.SCR_CALIBRATION3 = self.numScreens
@@ -58,7 +79,7 @@ class home(base_app):
         self.SCR_CALIBRATION2 = self.numScreens
         self.numScreens += 1
         self.screens.append(calibrationScreen2(self.frame))
-        self.screens[self.SCR_CALIBRATION2].neutralStateReadButton.configure(command= self.combine_funcs(lambda: self.switchScreen(self.SCR_CALIBRATION3, "Calibration"), self.combine_funcs(self.readNeutralData,self.countDown)))
+        self.screens[self.SCR_CALIBRATION2].neutralStateReadButton.configure(command= self.combine_funcs(lambda: self.switchScreen(self.SCR_CALIBRATION3, "Calibration"), self.selfDestructTimer))
 
         #Calibration Screen 1 Initialize and Configuration
         self.SCR_CALIBRATION1 = self.numScreens
@@ -127,29 +148,49 @@ class home(base_app):
         #self.lslTest()
 
     def readNeutralData(self):
-        if self.read == True:
-            for i in range(8):
-                sample,timestamp = self.inlet.pull_sample()
-                if i not in self.channel_data:
-                    self.channel_data[i] = sample
+        count = 0
+        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+        script_dir = os.path.dirname(script_dir)
+        rel_path = "/GUI/UserData/"
+        abs_file_path = os.path.join(script_dir, rel_path)
+        while self.read == True:
+            for i in range(9):
+                if i == 8:
+                    self.channel_data[i] = np.zeros(len(self.channel_data[0],),dtype=int)
                 else:
-                    self.channel_data[i].append(sample)
-        else:
-            print(self.channel_data)
-            return
-        self.master.after(4,self.readNeutralData)
+                    sample,timestamp = self.inlet.pull_sample()
+                    if i not in self.channel_data:
+                        self.channel_data[i] = sample
+            if count == 0:
+                df = pd.DataFrame.from_dict(self.channel_data, orient="index")
+                df = df.T
+                df.to_csv(script_dir + rel_path + self.header.user.get() + "/NeutralData.csv", mode="a", header=self.channelNames)
+                self.channel_data = {}
+                count = count + 1
+            else:
+                df = pd.DataFrame.from_dict(self.channel_data, orient="index")
+                df = df.T
+                df.to_csv(script_dir + rel_path + self.header.user.get() + "/NeutralData.csv", mode="a", header=False)
+                self.channel_data = {}
+
+
+
 
     def generateKNNModel(self):
         pass
 
-    def countDown(self):
+    def selfDestructTimer(self):
         self.read = True
+        if self.startOnce == True:
+            threading.Thread(target=self.readNeutralData).start()
+            self.startOnce = False
         if self.screens[self.SCR_CALIBRATION3].counter_1.get() > 0:
             self.screens[self.SCR_CALIBRATION3].progressBar.start()
             temp = self.screens[self.SCR_CALIBRATION3].counter_1.get() - 10
             self.screens[self.SCR_CALIBRATION3].counter_1.set(int(temp))
         else:
             self.read = False
+            self.startOnce = True
             self.screens[self.SCR_CALIBRATION3].counter_1.set(30)
             self.switchScreen(self.SCR_CALIBRATION1, "Calibration")
             #Read in audio file for calibration completion
@@ -158,9 +199,8 @@ class home(base_app):
             abs_file_path = os.path.join(script_dir, rel_path)
             pygame.mixer.music.load(abs_file_path)
             pygame.mixer.music.play(loops=0)
-            self.read = False
             return
-        self.master.after(1000, self.countDown)
+        self.master.after(1000, self.selfDestructTimer)
 
     def runNetwork(self, *args):
         #Initalize popup window class
@@ -271,7 +311,5 @@ def main():
     app = home(root)
     root.mainloop()
 
-#stops code from executing unless it is the main,
-#aka avoids executing code if just importing a class
 if __name__ == '__main__':
     main()
