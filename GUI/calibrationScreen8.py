@@ -4,7 +4,7 @@ import os
 from PIL import ImageTk, Image
 from AppSetup.window_setup import *
 
-class calibrationScreen3:
+class calibrationScreen8:
 
     def __init__(self,master):
 
@@ -23,7 +23,7 @@ class calibrationScreen3:
         #### define center frame widgets
 
         script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-        rel_path = "AppSetup/Graphics/calibrationLoading1.png"
+        rel_path = "AppSetup/Graphics/onLight.png"
         abs_file_path = os.path.join(script_dir, rel_path)
         self.load = Image.open(abs_file_path)
         self.render = ImageTk.PhotoImage(self.load)

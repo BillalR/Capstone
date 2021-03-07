@@ -13,6 +13,7 @@ from AppSetup import window_setup as winSet
 from AppSetup import header_bar, footer_bar
 from AppSetup import popup as pop
 from AppSetup import sideMenu as menu
+from AppSetup import arduinoControl as ar
 
 
 
@@ -47,6 +48,10 @@ class base_app:
         #define variables for the hidden quit button
         self._countdown_to_quit = 5
         self._countdown_time = time.time()
+
+        #self.arduinoBoard = ar.arduinoControl()
+
+
 
 
 

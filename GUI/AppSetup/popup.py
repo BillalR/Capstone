@@ -121,6 +121,31 @@ class popupWindow:
         self.popupFrame.pack(expand = 1, fill = 'both')
         self.popupFrame.focus()
 
+    def popupNoServer(self):
+        self.popup_window = tk.Toplevel()
+        scr_w = self.master.winfo_screenwidth()
+        scr_h = self.master.winfo_screenheight()
+        pop_w = 400
+        pop_h = 100
+        self.popup_window.geometry('%dx%d+%d+%d' % (pop_w, pop_h, (scr_w/2)-(pop_w/2), (scr_h/2)-(pop_h/2)))
+        self.popup_window.title("Error")
+        self.popupFrame = ttk.Frame(self.popup_window, style = 'TFrame')
+        for rows in range (0,3):
+            self.popupFrame.rowconfigure(rows, weight = 1)
+        for cols in range (0,3):
+            self.popupFrame.columnconfigure(cols, weight = 1)
+
+        self.popupLabel = ttk.Label(self.popupFrame, style='E.TLabel', text="You must select a connection to continue calibration")
+        self.popupLabel.grid(column=1, row=0, rowspan=1, columnspan=1, ipadx=0, pady=0)
+
+        self.okButton = ttk.Button(self.popupFrame,
+                                     text = 'Ok',
+                                     style = 'popup2.TButton',
+                                     command = self.closePopupNewUser)
+        self.okButton.grid(column=0, row=1, rowspan=1, columnspan=2, padx=20, pady=0)
+        self.popupFrame.pack(expand = 1, fill = 'both')
+        self.popupFrame.focus()
+
     def popupNewUser(self, error):
         self.popup_window = tk.Toplevel()
         scr_w = self.master.winfo_screenwidth()

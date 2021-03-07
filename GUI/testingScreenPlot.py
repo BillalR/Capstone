@@ -2,23 +2,18 @@ import tkinter as tk
 from tkinter import ttk
 import os
 from PIL import ImageTk, Image
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from AppSetup.window_setup import *
 
-class testingScreen:
+class testingScreenPlot:
 
     def __init__(self,master):
 
         self.master = master
-        self.mainFrame = tk.Frame(self.master, bg=background_color)
 
-        #center frame that fits between the header and footer
-        self.testFrame = tk.Frame(self.mainFrame, bg=background_color)
-        for rows in range (0,20):
-            self.testFrame.rowconfigure(rows, weight = 1)
-        for columns in range(0,50):
-            self.testFrame.columnconfigure(columns, weight = 1)
-        #### define center frame widgets
 
+        '''
         script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
         rel_path = "AppSetup/Graphics/calibrationLoading1.png"
         abs_file_path = os.path.join(script_dir, rel_path)
@@ -48,14 +43,28 @@ class testingScreen:
                                                     text="Start",
                                                     style="unpressed.TButton")
         self.testingButton.grid(column=25,row=9,columnspan=1,rowspan=1,padx=30)
-
+        '''
 
         #pack the center frame
-        self.testFrame.pack(expand = 1, fill = 'both')
+        #self.canvas.pack(expand = 1, fill = 'both')
 
 
     def pack(self):
         self.mainFrame.pack(expand = 1, fill = 'both')
+
+    def matplotCanvas(self, x, y):
+        f = Figure(figsize(len(x), len(y)), dpi = 100)
+        a = f.add_subplot(111)
+        a.plot(x, y)
+
+        canvas = FigureCanvasTkAgg(f, self)
+        canvas.show()
+        canvas.get_tk_widget().pack(side = BOTTOM, fill=BOTH, expand=True)
+
+
+
+
+
 
     def pack_forget(self):
         self.mainFrame.pack_forget()
