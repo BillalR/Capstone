@@ -44,10 +44,20 @@ class testingScreen:
                                                  style = "overBackground.TLabel")
         self.testingInstruction13.grid(column=25,row=7,columnspan=1,rowspan=1,padx=30)
 
+        self.CNNButton = ttk.Button(self.testFrame,
+                                                    text="Generate CNN",
+                                                    style="unpressed.TButton")
+        self.CNNButton.grid(column=25,row=9,columnspan=1,rowspan=1,padx=30)
+
+        self.KNNButton = ttk.Button(self.testFrame,
+                                                    text="Generate KNN",
+                                                    style="unpressed.TButton")
+        self.KNNButton.grid(column=25,row=10,columnspan=1,rowspan=1,padx=30)
+
         self.testingButton = ttk.Button(self.testFrame,
                                                     text="Start",
                                                     style="unpressed.TButton")
-        self.testingButton.grid(column=25,row=9,columnspan=1,rowspan=1,padx=30)
+        self.testingButton.grid(column=25,row=11,columnspan=1,rowspan=1,padx=30)
 
 
         #pack the center frame

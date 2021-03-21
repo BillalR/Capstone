@@ -8,6 +8,9 @@ import pandas as pd
 import statistics as st
 from scipy import signal
 from sklearn.preprocessing import StandardScaler
+import time
+import pywt
+import pathlib
 
 #import the screens or models
 from mainScreen import *
@@ -22,10 +25,13 @@ from calibrationScreen8 import *
 from calibrationScreen9 import *
 from calibrationScreen10 import *
 from testingScreen import *
+from testingScreen2 import *
+from testingScreen3 import *
 from testingScreenPlot import *
 from quickScreen import *
 from keyboardScreen import *
 from knnML import *
+from cnnModel import *
 from svmModel import *
 
 '''
@@ -58,6 +64,8 @@ class home(base_app):
         self.SCR_CALIBRATION9 = -1 #<-- Off LED state processing
         self.SCR_CALIBRATION10 = -1
         self.SCR_TESTING = -1
+        self.SCR_TESTING2 = -1
+        self.SCR_TESTING3 = -1
         self.SCR_TESTINGPLOT = -1
         self.SCR_QUICK = -1
         self.SCR_KEYBOARD = -1
@@ -75,6 +83,7 @@ class home(base_app):
         self.channelNames = ["FP1","CZ","FZ","C3","C4","F3","O1","O2","Perception"]
         #self.channelNames = ["FP1","CZ","FZ","C3","C4","Perception"]
         self.channel_data = {}
+        self.time_data = {}
         self.dataInput = []
 
         #Machine Learning Model Selection
@@ -83,6 +92,14 @@ class home(base_app):
         #Flags
         self.read = False
         self.startOnce = True
+        self.headerOnce = False
+        self.FFT = False
+        self.Time = False
+        self.startUp = True
+
+        #Counters
+        self.loops = 0
+        self.count = 0
 
         #Main screen Initialize and Configuration
         self.SCR_MAIN = self.numScreens
@@ -101,8 +118,19 @@ class home(base_app):
         self.numScreens += 1
         self.screens.append(testingScreen(self.frame))
         self.screens[self.SCR_TESTING].testingButton.configure(command= lambda: threading.Thread(target=self.readGeneralBrainData).start())
-        #self.screens[self.SCR_TESTING].testingButton.configure(command= self.combine_funcs(lambda: self.testData, lambda: self.switchScreen(self.SCR_TESTINGPLOT, "Testing")))
-        #self.screens[self.SCR_TESTING].testingButton.configure(command= lambda: threading.Thread(target=self.testData))
+        self.screens[self.SCR_TESTING].CNNButton.configure(command= self.combine_funcs(lambda: threading.Thread(target=self.generateCNNModel).start(), self.domainTimeInit))
+        self.screens[self.SCR_TESTING].KNNButton.configure(command= self.combine_funcs(lambda: threading.Thread(target=self.generateKNNModel).start(),self.domainFFTInit))
+
+
+        #Testing Screen TWO
+        self.SCR_TESTING2 = self.numScreens
+        self.numScreens += 1
+        self.screens.append(testingScreen2(self.frame))
+
+        #Testing Screen THREE
+        self.SCR_TESTING3 = self.numScreens
+        self.numScreens += 1
+        self.screens.append(testingScreen3(self.frame))
 
         #Calibration Screen 3 Initialize and Configuration
         self.SCR_QUICK = self.numScreens
@@ -164,7 +192,9 @@ class home(base_app):
         self.SCR_CALIBRATION2 = self.numScreens
         self.numScreens += 1
         self.screens.append(calibrationScreen2(self.frame))
-        self.screens[self.SCR_CALIBRATION2].neutralStateReadButton.configure(command= self.combine_funcs(lambda: self.switchScreen(self.SCR_CALIBRATION3, "Calibration"), self.neutralStateTimer))
+        self.screens[self.SCR_CALIBRATION2].neutralStateReadButtonFFT.configure(command= self.combine_funcs(lambda: self.switchScreen(self.SCR_CALIBRATION3, "Calibration"), self.domainFFT))
+        self.screens[self.SCR_CALIBRATION2].neutralStateReadButtonTime.configure(command= self.combine_funcs(lambda: self.switchScreen(self.SCR_CALIBRATION3, "Calibration"), self.domainTime))
+        #self.screens[self.SCR_CALIBRATION2].neutralStateReadButtonFFT.configure(command= self.combine_funcs(lambda: self.switchScreen(self.SCR_CALIBRATION3, "Calibration"), self.testTimer))
 
         #Calibration Screen 1 Initialize and Configuration
         self.SCR_CALIBRATION1 = self.numScreens
@@ -216,16 +246,9 @@ class home(base_app):
         return
 
     '''
-    def lslTest(self):
-        channel_data = {}
-        for i in range(4): # each of the 4 channels here
-            sample, timestamp = self.inlet.pull_sample()
-            if i not in channel_data:
-                channel_data[i] = sample
-            else:
-                channel_data[i].append(sample)
-        print(channel_data)
-        self.master.after(4, self.lslTest)
+        5-10 second neutral intervals
+        3 seconds on - 10 times
+        3 seconds off - 10 times
     '''
 
     def serverConnect(self):
@@ -235,29 +258,42 @@ class home(base_app):
             self.inlet = self.lslServer()
         #Close popup
         self.messageWindow.closePopup()
-
-    def generateKNNModel(self):
-        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-        script_dir = os.path.dirname(script_dir)
-        rel_path = "/GUI/UserData/"
-        abs_file_path = os.path.join(script_dir, rel_path)
-        self.model = KNN(script_dir + rel_path + self.header.user.get() + "/Data.csv")
         return
 
+    def generateKNNModel(self):
+        script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
+        script_dir = str(script_dir) + "/UserData"
+        if self.FFT == True:
+            self.model = KNN(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv")
+        else:
+            self.model = KNN(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv")
+        return
+
+    def generateCNNModel(self):
+        script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
+        script_dir = str(script_dir) + "/UserData"
+        if self.FFT == True:
+            self.model = CNN(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv")
+        else:
+            self.model = CNN(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv")
+        return
     '''
     All of the functions contained below will correspond to the
     accumulation of data from various states
     '''
 
-    def readNeutralState(self):
-        count = 0
-        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-        script_dir = os.path.dirname(script_dir)
-        rel_path = "/GUI/UserData/"
-        abs_file_path = os.path.join(script_dir, rel_path)
+    '''
+    Read FFT data in
+    '''
+
+    def readNeutralStateFFT(self):
+
+        script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
+        script_dir = str(script_dir) + "/UserData"
         fs = 250/2
-        if os.path.exists(script_dir + rel_path + self.header.user.get() + "/Data.csv"):
-            os.remove(script_dir + rel_path + self.header.user.get() + "/Data.csv")
+
+        if os.path.exists(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv") and self.count == 0:
+            os.remove(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv")
             print("Data has been overridden")
 
         while self.read == True:
@@ -268,34 +304,29 @@ class home(base_app):
                 else:
                     sample,timestamp = self.inlet.pull_sample()
                     if i not in self.channel_data:
-                        F, PSD = signal.welch(sample, fs, nperseg=len(sample))
+                        #F, PSD = signal.welch(sample, fs, nperseg=len(sample))
+                        PSD = (np.square(sample))/(2*0.9765625)
                         self.channel_data[i] = st.mean(PSD)
+            print(self.channel_data)
 
-            if count == 0:
+            if self.count == 0:
                 df = pd.DataFrame.from_dict(self.channel_data, orient="index")
                 df = df.T
-                df.to_csv(script_dir + rel_path + self.header.user.get() + "/Data.csv", mode="a", header=self.channelNames)
+                df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv", mode="w", header=self.channelNames)
                 self.channel_data = {}
-                count = count + 1
+                self.count = self.count + 1
             else:
                 df = pd.DataFrame.from_dict(self.channel_data, orient="index")
                 df = df.T
-                df.to_csv(script_dir + rel_path + self.header.user.get() + "/Data.csv", mode="a", header=False)
+                df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv", mode="a", header=False)
                 self.channel_data = {}
         return
 
-    def readOnState(self):
-        count = 0
-        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-        script_dir = os.path.dirname(script_dir)
-        rel_path = "/GUI/UserData/"
-        abs_file_path = os.path.join(script_dir, rel_path)
+    def readOnStateFFT(self):
+        script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
+        script_dir = str(script_dir) + "/UserData"
         fs = 250/2
-        '''
-        if os.path.exists(script_dir + rel_path + self.header.user.get() + "/Data.csv"):
-            os.remove(script_dir + rel_path + self.header.user.get() + "/Data.csv")
-            print("On Off State data has been overridden")
-        '''
+
         while self.read == True:
             for i in range(9):
                 if i == 8:
@@ -304,41 +335,21 @@ class home(base_app):
                 else:
                     sample,timestamp = self.inlet.pull_sample()
                     if i not in self.channel_data:
-                        F, PSD = signal.welch(sample, fs, nperseg=len(sample))
+                        #F, PSD = signal.welch(sample, fs, nperseg=len(sample))
+                        PSD = (np.square(sample))/(2*0.9765625)
                         self.channel_data[i] = st.mean(PSD)
 
+            print(self.channel_data)
             df = pd.DataFrame.from_dict(self.channel_data, orient="index")
             df = df.T
-            df.to_csv(script_dir + rel_path + self.header.user.get() + "/Data.csv", mode="a", header=False)
+            df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv", mode="a", header=False)
             self.channel_data = {}
-            '''
-            if count == 0:
-                df = pd.DataFrame.from_dict(self.channel_data, orient="index")
-                df = df.T
-                df.to_csv(script_dir + rel_path + self.header.user.get() + "/Data.csv", mode="a", header=self.channelNames)
-                self.channel_data = {}
-                count = count + 1
-            else:
-                df = pd.DataFrame.from_dict(self.channel_data, orient="index")
-                df = df.T
-                df.to_csv(script_dir + rel_path + self.header.user.get() + "/Data.csv", mode="a", header=False)
-                self.channel_data = {}
-            '''
-
         return
 
-    def readOffState(self):
-        #count = 0
-        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-        script_dir = os.path.dirname(script_dir)
-        rel_path = "/GUI/UserData/"
-        abs_file_path = os.path.join(script_dir, rel_path)
+    def readOffStateFFT(self):
+        script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
+        script_dir = str(script_dir) + "/UserData"
         fs = 250/2
-        '''
-        if os.path.exists(script_dir + rel_path + self.header.user.get() + "/Data.csv"):
-            os.remove(script_dir + rel_path + self.header.user.get() + "/Data.csv")
-            print("On Off State data has been overridden")
-        '''
 
         while self.read == True:
             for i in range(9):
@@ -348,20 +359,145 @@ class home(base_app):
                 else:
                     sample,timestamp = self.inlet.pull_sample()
                     if i not in self.channel_data:
-                        F, PSD = signal.welch(sample, fs, nperseg=len(sample))
+                        #F, PSD = signal.welch(sample, fs, nperseg=len(sample))
+                        PSD = (np.square(sample))/(2*0.9765625)
                         self.channel_data[i] = st.mean(PSD)
+            print(self.channel_data)
+            df = pd.DataFrame.from_dict(self.channel_data, orient="index")
+            df = df.T
+            df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv", mode="a", header=False)
+            self.channel_data = {}
+        return
+
+    '''
+    Read Time Domain Data
+    '''
+
+    def readNeutralStateTime(self):
+
+        
+        localCount = 0
+        perception = 0
+
+        Figure out a way to get path from computer itself
+
+
+        script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
+        script_dir = str(script_dir) + "/UserData"
+
+        fs = 250/2
+
+        if os.path.exists(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv") and self.count == 0:
+            os.remove(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv")
+            print("Data has been overridden")
+
+        if os.path.exists(str(script_dir) + "/" + self.header.user.get() + "/DataTimeStep.csv") and self.count == 0:
+            os.remove(str(script_dir) + "/" + self.header.user.get() + "/DataTimeStep.csv")
+            print("Data has been overridden")
+
+
+
+        while self.read == True:
+
+            for i in range(16):
+                sample, timestamp = self.inlet.pull_sample()
+                for value in sample:
+                    self.channel_data[localCount] = value
+                    localCount = localCount + 1
+
+
+            self.channel_data[localCount] = perception
+            localCount = 0
+            print(timestamp)
+
+            if self.count == 0:
+                df = pd.DataFrame.from_dict(self.channel_data, orient="index")
+                df = df.T
+                df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv", mode="a", header=False)
+                self.channel_data = {}
+
+
+
+                self.count = self.count + 1
+            else:
+                df = pd.DataFrame.from_dict(self.channel_data, orient="index")
+                df = df.T
+                df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv", mode="a", header=False)
+                self.channel_data = {}
+
+            time.sleep(0.01)
+
+        return
+
+    def readOnStateTime(self):
+        localCount = 0
+        perception = 1
+        script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
+        script_dir = str(script_dir) + "/UserData"
+
+        fs = 250/2
+
+        while self.read == True:
+
+            for i in range(16):
+                sample, timestamp = self.inlet.pull_sample()
+                for value in sample:
+                    self.channel_data[localCount] = value
+                    localCount = localCount + 1
+
+
+            self.channel_data[localCount] = perception
+            localCount = 0
+            print(self.channel_data)
 
             df = pd.DataFrame.from_dict(self.channel_data, orient="index")
             df = df.T
-            df.to_csv(script_dir + rel_path + self.header.user.get() + "/Data.csv", mode="a", header=False)
+            df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv", mode="a", header=False)
             self.channel_data = {}
+
+            time.sleep(0.01)
+        return
+
+    def readOffStateTime(self):
+        localCount = 0
+        perception = 2
+        script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
+        script_dir = str(script_dir) + "/UserData"
+
+        fs = 250/2
+
+        while self.read == True:
+
+            for i in range(16):
+                sample, timestamp = self.inlet.pull_sample()
+                for value in sample:
+                    self.channel_data[localCount] = value
+                    localCount = localCount + 1
+
+
+            self.channel_data[localCount] = perception
+            localCount = 0
+            print(self.channel_data)
+
+            df = pd.DataFrame.from_dict(self.channel_data, orient="index")
+            df = df.T
+            df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv", mode="a", header=False)
+            self.channel_data = {}
+
+            time.sleep(0.01)
         return
 
     def neutralStateTimer(self):
         self.read = True
-        if self.startOnce == True:
-            threading.Thread(target=self.readNeutralState).start()
+        if self.startOnce == True and self.FFT == True:
+            self.inlet = self.lslServer()
+            threading.Thread(target=self.readNeutralStateFFT).start()
             self.startOnce = False
+        elif self.startOnce == True and self.Time == True:
+            self.inlet = self.lslServer()
+            threading.Thread(target=self.readNeutralStateTime).start()
+            self.startOnce = False
+
         if self.screens[self.SCR_CALIBRATION3].counter_1.get() > 0:
             self.screens[self.SCR_CALIBRATION3].progressBar.start()
             temp = self.screens[self.SCR_CALIBRATION3].counter_1.get() - 1
@@ -369,8 +505,9 @@ class home(base_app):
         else:
             self.read = False
             self.startOnce = True
-            self.screens[self.SCR_CALIBRATION3].counter_1.set(30)
-            self.switchScreen(self.SCR_CALIBRATION4, "Calibration") #Move onto the next calibration screen for on and off
+            self.screens[self.SCR_CALIBRATION3].counter_1.set(0)
+            #self.switchScreen(self.SCR_CALIBRATION4, "Calibration") #Redo Button
+            self.switchScreen(self.SCR_CALIBRATION5, "Calibration") #Move onto next screen
             #Read in audio file for calibration completion
             script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
             rel_path = "AppSetup/SoundNotifications/ding.mp3"
@@ -382,9 +519,15 @@ class home(base_app):
 
     def onStateTimer(self):
         self.read = True
-        if self.startOnce == True:
-            threading.Thread(target=self.readOnState).start()
+        if self.startOnce == True and self.FFT == True:
+            self.inlet = self.lslServer()
+            threading.Thread(target=self.readOnStateFFT).start()
             self.startOnce = False
+        elif self.startOnce == True and self.Time == True:
+            self.inlet = self.lslServer()
+            threading.Thread(target=self.readOnStateTime).start()
+            self.startOnce = False
+
         if self.screens[self.SCR_CALIBRATION8].counter_1.get() > 0:
             self.screens[self.SCR_CALIBRATION8].progressBar.start()
             temp = self.screens[self.SCR_CALIBRATION8].counter_1.get() - 1
@@ -392,8 +535,9 @@ class home(base_app):
         else:
             self.read = False
             self.startOnce = True
-            self.screens[self.SCR_CALIBRATION8].counter_1.set(30)
-            self.switchScreen(self.SCR_CALIBRATION6, "Calibration") #Move onto the next calibration screen for on and off
+            self.screens[self.SCR_CALIBRATION8].counter_1.set(10)
+            #self.switchScreen(self.SCR_CALIBRATION6, "Calibration") #Redo Button
+            self.switchScreen(self.SCR_CALIBRATION7, "Calibration") #Move onto next screen
             #Read in audio file for calibration completion
             script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
             rel_path = "AppSetup/SoundNotifications/ding.mp3"
@@ -405,8 +549,13 @@ class home(base_app):
 
     def offStateTimer(self):
         self.read = True
-        if self.startOnce == True:
-            threading.Thread(target=self.readOffState).start()
+        if self.startOnce == True and self.FFT == True:
+            self.inlet = self.lslServer()
+            threading.Thread(target=self.readOffStateFFT).start()
+            self.startOnce = False
+        elif self.startOnce == True and self.Time == True:
+            self.inlet = self.lslServer()
+            threading.Thread(target=self.readOffStateTime).start()
             self.startOnce = False
         if self.screens[self.SCR_CALIBRATION9].counter_1.get() > 0:
             self.screens[self.SCR_CALIBRATION9].progressBar.start()
@@ -415,7 +564,7 @@ class home(base_app):
         else:
             self.read = False
             self.startOnce = True
-            self.screens[self.SCR_CALIBRATION9].counter_1.set(30)
+            self.screens[self.SCR_CALIBRATION9].counter_1.set(10)
             self.switchScreen(self.SCR_CALIBRATION10, "Calibration") #Move onto the next calibration screen for on and off
             #Read in audio file for calibration completion
             script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
@@ -423,16 +572,46 @@ class home(base_app):
             abs_file_path = os.path.join(script_dir, rel_path)
             #pygame.mixer.music.load(abs_file_path)
             #pygame.mixer.music.play(loops=0)
-            threading.Thread(target=self.generateKNNModel).start()
-            return
+            self.loops = self.loops + 1
+            if self.loops > 0 and self.Time == True:
+                #threading.Thread(target=self.generateKNNModel).start()
+                threading.Thread(target=self.generateCNNModel).start()
+                return
+            elif self.loops > 0 and self.FFT == True:
+                threading.Thread(target=self.generateKNNModel).start()
+                return
+            else:
+                self.switchScreen(self.SCR_CALIBRATION2, "Calibration")
+                return
         self.master.after(1000, self.offStateTimer)
 
     '''
     End of state accumulation functions
 
     '''
+    '''
+    Helper functions
+    '''
 
+    def domainFFT(self):
+        self.FFT = True
+        self.Time = False
+        self.neutralStateTimer()
+        return
 
+    def domainTime(self):
+        self.FFT = False
+        self.Time = True
+        self.neutralStateTimer()
+        return
+
+    def domainTimeInit(self):
+        self.FFT = False
+        self.Time = True
+
+    def domainFFTInit(self):
+        self.FFT = True
+        self.Time = False
     '''
 
     Start of running tests on brain wave data and ml model
@@ -443,43 +622,69 @@ class home(base_app):
     #    pass
 
     def readGeneralBrainData(self):
-        fs = 250/2
-        while self.model != None:
-            for i in range(8):
-                sample,timestamp = self.inlet.pull_sample()
-                if i not in self.channel_data:
-                    F, PSD = signal.welch(sample, fs, nperseg=len(sample))
-                    #self.channel_data[i] = st.mean(PSD)
-                    self.dataInput.append(st.mean(PSD))
 
-            #df = pd.DataFrame.from_dict(self.channel_data, orient="index")
-            #df = df.T
-            #self.channel_data = {}
-            #df = df.drop(df.columns[[0]], axis=1)
-            #data = df.iloc[:, 0:self.model.numChannels]
+        if self.FFT == True:
+            fs = 250/2
+            while self.model != None:
+                for i in range(8):
+                    sample,timestamp = self.inlet.pull_sample()
+                    if i not in self.channel_data:
+                        PSD = (np.square(sample))/(2*0.9765625)
+                        self.dataInput.append(st.mean(PSD))
 
-            #sc_X = StandardScaler()
-            #data = sc_X.fit_transform(data)
-            #print(data)
-            #print(self.dataInput)
-            temp = [self.dataInput]
-            #temp = np.array(self.dataInput)
-            #temp = self.dataInput.iloc[:, 0:self.model.numChannels]
-            modelOutput = self.model.classifier.predict(temp)
-            self.dataInput = []
-            #print(modelOutput)
+                #df = pd.DataFrame.from_dict(self.channel_data, orient="index")
+                #df = df.T
+                #self.channel_data = {}
+                #df = df.drop(df.columns[[0]], axis=1)
+                #data = df.iloc[:, 0:self.model.numChannels]
 
-            if modelOutput == 1:
-                #self.arduinoBoard.board.digitalWrite(13, "HIGH")
-                print("On")
-                #time.sleep(1)
-            elif modelOutput == 2:
-                #self.arduinoBoard.board.digitalWrite(13,"LOW")
-                print("Off")
-                #time.sleep(1)
-            elif modelOutput == 0:
-                print("Neutral")
-            time.sleep(0.01)
+                #sc_X = StandardScaler()
+                #data = sc_X.fit_transform(data)
+                #print(data)
+                #print(self.dataInput)
+                temp = [self.dataInput]
+                print(temp)
+                #temp = np.array(self.dataInput)
+                #temp = self.dataInput.iloc[:, 0:self.model.numChannels]
+                modelOutput = self.model.classifier.predict(temp)
+                self.dataInput = []
+                #print(modelOutput)
+
+                if modelOutput == 1:
+                    #self.arduinoBoard.board.digitalWrite(13, "HIGH")
+                    print("On")
+                    #time.sleep(1)
+                elif modelOutput == 2:
+                    #self.arduinoBoard.board.digitalWrite(13,"LOW")
+                    print("Off")
+                    #time.sleep(1)
+                elif modelOutput == 0:
+                    print("Neutral")
+
+        elif self.Time == True:
+            class_names = ['On','Off']
+            fs = 250/2
+            x = range(16)
+
+            while self.model != None:
+                temp = []
+                for i in x:
+                    sample, timestamp = self.inlet.pull_sample()
+                    for value in sample:
+                        temp.append(value)
+
+                data = np.array(temp)
+                data = data.reshape(1, 128, 1, 1)
+
+                print(class_names[np.argmax(self.model.classifier.predict(data))])
+                '''
+                if class_names[np.argmax(self.model.classifier.predict(data))] == "On":
+                    self.switchScreen(self.SCR_TESTING2, "Calibration")
+                    self.master.focus()
+                elif class_names[np.argmax(self.model.classifier.predict(data))] == "Off":
+                    self.switchScreen(self.SCR_TESTING3, "Calibration")
+                    self.master.focus()
+                '''
 
 
 
@@ -562,6 +767,7 @@ class home(base_app):
         self.screens[self.scrmap[-1]].pack_forget()
         self.scrmap.append(ID)
         self.screens[self.scrmap[-1]].pack()
+        return
 
     def switchBack(self):
         if self.scrmap[-2] < 0:

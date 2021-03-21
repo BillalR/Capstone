@@ -2,6 +2,15 @@ import pandas as pd
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+import pywt
+import os
+from PIL import Image
+import tensorflow.keras as tf
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Activation, Dropout, BatchNormalization
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.callbacks import History
+history = History()
+import sys
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -10,8 +19,12 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import f1_score
 from sklearn.metrics import accuracy_score
 
+'''
+PATH="~/.pyenv/versions/3.8.0/bin:${PATH}"
+eval "$(pyenv init -)"
+'''
 
-class svmModel:
+class CNN:
 
     def __init__(self, data):
 
@@ -19,34 +32,114 @@ class svmModel:
         self.dataset = pd.read_csv(data)
         self.dataset = self.dataset.drop(self.dataset.columns[[0]], axis=1)
         self.numChannels = 8
+        self.numSamples = 128
         self.nDataSetLength = len(self.dataset)
+        self.key = 0
+        count = 0
 
 
-        #K values should be sqrt(N)
-        if math.sqrt(self.nDataSetLength) % 2 == 0:
-            self.k = int(math.sqrt(self.nDataSetLength)) + 1
-        else:
-            self.k = int(math.sqrt(self.nDataSetLength))
+        self.X = self.dataset.iloc[:, 0:self.numSamples].values.reshape(self.dataset.shape[0], 128, 1, 1)
+        self.Y = self.dataset.iloc[:, self.numSamples].values
 
-        self.X = self.dataset.iloc[:, 0:self.numChannels]
-        self.Y = self.dataset.iloc[:, self.numChannels]
 
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.Y, random_state=0, test_size=0.2)
+        self.dY = tf.utils.to_categorical(self.Y, num_classes=3)
 
-        self.sc_X = StandardScaler()
-        self.X_train = self.sc_X.fit_transform(self.X_train)
-        self.X_test = self.sc_X.transform(self.X_test)
+        self.dX = np.array(self.X)
+        self.dY = np.array(self.dY)
 
-        self.classifier = KNeighborsClassifier(n_neighbors=self.k*2, p=2, metric='euclidean')
-        self.classifier.fit(self.X_train,self.y_train)
 
-        self.y_pred = self.classifier.predict(self.X_test)
-        print("Model Generated")
-        #print(self.X)
-        #print(self.X_train)
 
-        #evaluate the model
-        #self.cm = confusion_matrix(self.y_test,self.y_pred)
-        #print(cm)
-        print(f1_score(self.y_test,self.y_pred))
-        print(accuracy_score(self.y_test,self.y_pred))
+        #self.X = self.X.to_numpy(dtype = 'float32').reshape(len(self.X), 8, 1, 1)
+        #self.Y = self.Y.to_numpy(dtype = 'float32').reshape(len())
+
+
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.dX, self.dY, random_state=0, test_size=0.2)
+
+        #self.sc_X = MinMaxScaler()
+        #self.X_train = self.sc_X.fit_transform(self.X_train)
+        #self.X_test = self.sc_X.fit_transform(self.X_test)
+
+
+        #reshape data to fit model
+        #self.X_train = self.X_train.reshape(len(self.X_train),8,1,1)
+        #self.X_test = self.X_test.reshape(len(self.X_test),8,1,1)
+        #self.X_train = self.X_train.reshape(len(self.X_train),8,1,1)
+        #self.y_train = to_categorical(self.y_train,3)
+        #self.y_test = to_categorical(self.y_test,3)
+
+
+
+        #create self.classifier
+        self.classifier = Sequential()
+        self.classifier.add(Conv2D(128, 3, data_format='channels_last', activation='relu', input_shape=(128,1,1), padding='same'))
+        self.classifier.add(MaxPool2D(pool_size=(2,2), strides=(2,2),padding='same'))
+        self.classifier.add(BatchNormalization())
+
+        self.classifier.add(Conv2D(64, 3, data_format='channels_last', activation='relu', input_shape=(128,1,1), padding='same'))
+        self.classifier.add(MaxPool2D(pool_size=(2,2), strides=(2,2),padding='same'))
+        self.classifier.add(BatchNormalization())
+
+        self.classifier.add(Conv2D(32, 3, data_format='channels_last', activation='relu', input_shape=(128,1,1), padding='same'))
+        self.classifier.add(MaxPool2D(pool_size=(2,2), strides=(2,2),padding='same'))
+        self.classifier.add(BatchNormalization())
+
+        self.classifier.add(Flatten())
+        self.classifier.add(Dense(100))
+        self.classifier.add(Dropout(0.5))
+        self.classifier.add(Dense(2))
+        self.classifier.add(Activation('softmax'))
+
+
+        #add self.classifier layers
+        '''
+        self.classifier.add(Conv2D(32, 5, activation = 'relu', padding = 'same', input_shape = (8,1,1)))
+        self.classifier.add(MaxPool2D(pool_size=(2, 2), padding = 'same'))
+        self.classifier.add(Conv2D(64, 5, activation = 'relu', padding = 'same', kernel_initializer = "he_normal"))
+        self.classifier.add(MaxPool2D(pool_size=(2, 2), padding = 'same'))
+        self.classifier.add(Flatten())
+        self.classifier.add(Dense(128, activation = 'relu', kernel_initializer = "he_normal"))
+        self.classifier.add(Dense(54, activation = 'relu', kernel_initializer = "he_normal"))
+        self.classifier.add(Dense(3, activation = 'softmax'))
+        '''
+        '''
+        self.classifier.add(Conv2D(128, 3, data_format='channels_last', activation='relu', input_shape=(8,1,1), padding='same'))
+        self.classifier.add(MaxPool2D(pool_size=(2,2), strides=(2,2),padding='same'))
+        self.classifier.add(BatchNormalization())
+
+        self.classifier.add(Conv2D(128, 3, data_format='channels_last', activation='relu', input_shape=(8,1,1), padding='same'))
+        self.classifier.add(MaxPool2D(pool_size=(2,2), strides=(2,2), padding='same'))
+        self.classifier.add(BatchNormalization())
+
+        self.classifier.add(Conv2D(128, 3, data_format='channels_last', activation='relu', input_shape=(8,1,1), padding='same'))
+        self.classifier.add(MaxPool2D(pool_size=(2,2), strides=(2,2), padding='same'))
+        self.classifier.add(BatchNormalization())
+
+        self.classifier.add(Flatten())
+        self.classifier.add(Dense(100))
+        self.classifier.add(Dropout(0.5))
+        self.classifier.add(Dense(3))
+        self.classifier.add(Activation('softmax'))
+
+
+        self.classifier.add(Conv2D(64, kernel_size=3, activation='relu',data_format='channels_last', input_shape=(8,1,1), padding="same"))
+        self.classifier.add(Conv2D(64, kernel_size=3, activation='relu', input_shape=(8,1,1), padding="same"))
+        self.classifier.add(Flatten())
+        self.classifier.add(Dense(64, activation = 'relu'))
+        self.classifier.add(Dense(3, activation='softmax'))
+        '''
+
+
+        #compile model using accuracy to measure model performance
+        self.classifier.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+        #train the model
+        self.classifier.fit(self.X_train, self.y_train, validation_data=(self.X_test, self.y_test), epochs=10)
+
+        test_error, test_accuracy = self.classifier.evaluate(self.X_test, self.y_test, verbose=1)
+        print(test_accuracy)
+        print(self.classifier.summary())
+
+
+
+        #predict first 4 images in the test set
+        #self.classifier.predict(self.X_test[:4])

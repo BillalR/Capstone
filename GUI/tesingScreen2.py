@@ -4,7 +4,7 @@ import os
 from PIL import ImageTk, Image
 from AppSetup.window_setup import *
 
-class calibrationScreen2:
+class calibrationScreen10:
 
     def __init__(self,master):
 
@@ -30,34 +30,20 @@ class calibrationScreen2:
         self.neutralImage.grid(column=25,row=3,columnspan=1,rowspan=1,sticky='n')
 
         self.blankSpace = ttk.Label(self.calibFrame,
-                                                 text="Begin with a couple of deep breathes, to relax your mind. By ",
+                                                 text="You have now completed the calibration process. Your ",
                                                  style = "overBackground.TLabel")
         self.blankSpace.grid(column=25,row=5,columnspan=1,rowspan=1,padx=30)
 
         self.calibrationInstructions2 = ttk.Label(self.calibFrame,
-                                                 text="pressing the Start Button, we will take 30 seconds of your neutral",
+                                                 text="Machine Learning Model has been generated. Head ",
                                                  style = "overBackground.TLabel")
         self.calibrationInstructions2.grid(column=25,row=6,columnspan=1,rowspan=1,padx=30)
 
-        self.calibrationInstructions3 = ttk.Label(self.calibFrame,
-                                                 text="state brain wave data. A redo will be offered. Once you press",
+        self.calibrationInstructions2 = ttk.Label(self.calibFrame,
+                                                 text="over to the test section to utilize your brain powers.",
                                                  style = "overBackground.TLabel")
-        self.calibrationInstructions3.grid(column=25,row=7,columnspan=1,rowspan=1,padx=30)
+        self.calibrationInstructions2.grid(column=25,row=7,columnspan=1,rowspan=1,padx=30)
 
-        self.calibrationInstructions4 = ttk.Label(self.calibFrame,
-                                                 text="start, make sure to close your eyes and remain calm.",
-                                                 style = "overBackground.TLabel")
-        self.calibrationInstructions4.grid(column=25,row=8,columnspan=1,rowspan=1,padx=30)
-
-        self.neutralStateReadButtonFFT = ttk.Button(self.calibFrame,
-                                                    text="FFT",
-                                                    style="unpressed.TButton")
-        self.neutralStateReadButtonFFT.grid(column=25,row=9,columnspan=1,rowspan=1,padx=30)
-
-        self.neutralStateReadButtonTime = ttk.Button(self.calibFrame,
-                                                    text="Time",
-                                                    style="unpressed.TButton")
-        self.neutralStateReadButtonTime.grid(column=25,row=10,columnspan=1,rowspan=1,padx=30)
 
 
         #pack the center frame

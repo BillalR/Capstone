@@ -36,7 +36,7 @@ class header:
 
         self.title.grid(column=13,row=0,columnspan=2,rowspan=3)
         '''
-        
+
         #Drop down menu for users
         self.UserOPTIONS = [
         "New User..."
@@ -46,6 +46,7 @@ class header:
         script_dir = os.path.dirname(script_dir)
         rel_path = "/UserData/"
         abs_file_path = script_dir + rel_path
+        
         for exusername in os.listdir(abs_file_path):
             split = os.path.splitext(exusername)
             if split[0] == ".DS_Store":

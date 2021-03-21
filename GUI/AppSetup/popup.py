@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import os
 import csv
+import pathlib
 from AppSetup.base_app import *
 
 class popupWindow:
@@ -202,6 +203,7 @@ class popupWindow:
         self.popupFrame.destroy()
         self.popup_window.destroy()
         self.popup_window = None
+        return
 
     def closePopupNewUser(self):
         self.popupFrame.destroy()
@@ -211,14 +213,15 @@ class popupWindow:
 
 
     def userCSV(self):
+        #First obtain any users from previously put added
         script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
         script_dir = os.path.dirname(script_dir)
         rel_path = "/UserData/"
-        abs_file_path = os.path.join(script_dir, rel_path)
-        if os.path.isfile(script_dir + rel_path + str(self.t1.get())):
+        abs_file_path = script_dir + rel_path
+        if os.path.isfile(abs_file_path + "/" + str(self.t1.get())):
             self.closePopupNewUser()
             self.popupNewUser(1)
         else:
-            File = os.mkdir(script_dir + rel_path + str(self.t1.get()))
+            File = os.mkdir(abs_file_path + "/" + str(self.t1.get()))
             self.userFlag = True
             self.closePopupNewUser()
