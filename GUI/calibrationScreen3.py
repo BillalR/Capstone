@@ -12,7 +12,7 @@ class calibrationScreen3:
         self.mainFrame = tk.Frame(self.master, bg=background_color)
 
         self.counter_1 = tk.IntVar()
-        self.counter_1.set(10)
+        self.counter_1.set(30)
 
         #center frame that fits between the header and footer
         self.calibFrame = tk.Frame(self.mainFrame, bg=background_color)

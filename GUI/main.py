@@ -7,10 +7,12 @@ import numpy as np
 import pandas as pd
 import statistics as st
 from scipy import signal
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 import time
 import pywt
 import pathlib
+from skimage.restoration import denoise_wavelet
 
 #import the screens or models
 from mainScreen import *
@@ -273,7 +275,7 @@ class home(base_app):
         script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
         script_dir = str(script_dir) + "/UserData"
         if self.FFT == True:
-            self.model = CNN(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv")
+            self.model = CNN(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv")
         else:
             self.model = CNN(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv")
         return
@@ -291,28 +293,30 @@ class home(base_app):
         script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
         script_dir = str(script_dir) + "/UserData"
         fs = 250/2
+        localCount = 0
+        perception = 0
 
         if os.path.exists(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv") and self.count == 0:
             os.remove(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv")
             print("Data has been overridden")
 
         while self.read == True:
-            for i in range(9):
-                if i == 8:
-                    perception = 0
-                    self.channel_data[i] = perception
-                else:
-                    sample,timestamp = self.inlet.pull_sample()
-                    if i not in self.channel_data:
-                        #F, PSD = signal.welch(sample, fs, nperseg=len(sample))
-                        PSD = (np.square(sample))/(2*0.9765625)
-                        self.channel_data[i] = st.mean(PSD)
-            print(self.channel_data)
+
+            #for i in range(16):
+            for j in range(64):
+                sample, timestamp = self.inlet.pull_sample()
+                PSD = (np.square(sample))/(2*0.9765625)
+                self.channel_data[localCount] = st.mean(PSD)
+                localCount = localCount + 1
+
+            self.channel_data[localCount] = perception
+            localCount = 0
+            print(sample)
 
             if self.count == 0:
                 df = pd.DataFrame.from_dict(self.channel_data, orient="index")
                 df = df.T
-                df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv", mode="w", header=self.channelNames)
+                df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv", mode="w", header=False)
                 self.channel_data = {}
                 self.count = self.count + 1
             else:
@@ -326,18 +330,21 @@ class home(base_app):
         script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
         script_dir = str(script_dir) + "/UserData"
         fs = 250/2
+        localCount = 0
+        perception = 1
 
         while self.read == True:
-            for i in range(9):
-                if i == 8:
-                    perception = 1
-                    self.channel_data[i] = perception
-                else:
-                    sample,timestamp = self.inlet.pull_sample()
-                    if i not in self.channel_data:
-                        #F, PSD = signal.welch(sample, fs, nperseg=len(sample))
-                        PSD = (np.square(sample))/(2*0.9765625)
-                        self.channel_data[i] = st.mean(PSD)
+
+            #for i in range(16):
+            for j in range(64):
+                sample, timestamp = self.inlet.pull_sample()
+                PSD = (np.square(sample))/(2*0.9765625)
+                self.channel_data[localCount] = st.mean(PSD)
+                localCount = localCount + 1
+
+            self.channel_data[localCount] = perception
+            localCount = 0
+            print(sample)
 
             print(self.channel_data)
             df = pd.DataFrame.from_dict(self.channel_data, orient="index")
@@ -350,19 +357,22 @@ class home(base_app):
         script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
         script_dir = str(script_dir) + "/UserData"
         fs = 250/2
+        localCount = 0
+        perception = 2
 
         while self.read == True:
-            for i in range(9):
-                if i == 8:
-                    perception = 2
-                    self.channel_data[i] = perception
-                else:
-                    sample,timestamp = self.inlet.pull_sample()
-                    if i not in self.channel_data:
-                        #F, PSD = signal.welch(sample, fs, nperseg=len(sample))
-                        PSD = (np.square(sample))/(2*0.9765625)
-                        self.channel_data[i] = st.mean(PSD)
-            print(self.channel_data)
+
+            #for i in range(16):
+            for j in range(64):
+                sample, timestamp = self.inlet.pull_sample()
+                PSD = (np.square(sample))/(2*0.9765625)
+                self.channel_data[localCount] = st.mean(PSD)
+                localCount = localCount + 1
+
+            self.channel_data[localCount] = perception
+            localCount = 0
+            print(sample)
+
             df = pd.DataFrame.from_dict(self.channel_data, orient="index")
             df = df.T
             df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv", mode="a", header=False)
@@ -375,17 +385,16 @@ class home(base_app):
 
     def readNeutralStateTime(self):
 
-        
+        fs = 250
         localCount = 0
         perception = 0
-
-        Figure out a way to get path from computer itself
+        scales = np.arange(1,129)
+        data = {}
+        temp = []
 
 
         script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
         script_dir = str(script_dir) + "/UserData"
-
-        fs = 250/2
 
         if os.path.exists(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv") and self.count == 0:
             os.remove(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv")
@@ -395,12 +404,13 @@ class home(base_app):
             os.remove(str(script_dir) + "/" + self.header.user.get() + "/DataTimeStep.csv")
             print("Data has been overridden")
 
-
-
         while self.read == True:
 
-            for i in range(16):
+            #for i in range(1):
+
+            for i in range(8):
                 sample, timestamp = self.inlet.pull_sample()
+                print("neutral")
                 for value in sample:
                     self.channel_data[localCount] = value
                     localCount = localCount + 1
@@ -408,7 +418,19 @@ class home(base_app):
 
             self.channel_data[localCount] = perception
             localCount = 0
-            print(timestamp)
+            #print(self.channel_data)
+
+
+            '''
+            #Trying out wavelet
+            for i in range(8):
+                sample, timestamp = self.inlet.pull_sample()
+                coeffs,freq = pywt.cwt(sample,scales,'morl')
+                self.channel_data[i] = np.array(coeffs)
+            #sample = pywt.sample
+            self.channel_data[8] = perception
+            '''
+
 
             if self.count == 0:
                 df = pd.DataFrame.from_dict(self.channel_data, orient="index")
@@ -425,22 +447,27 @@ class home(base_app):
                 df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv", mode="a", header=False)
                 self.channel_data = {}
 
-            time.sleep(0.01)
 
         return
 
     def readOnStateTime(self):
+        fs = 250
         localCount = 0
         perception = 1
+        scales = np.arange(1,129)
+        data = {}
+        temp = []
         script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
         script_dir = str(script_dir) + "/UserData"
 
-        fs = 250/2
 
         while self.read == True:
 
-            for i in range(16):
+            #for i in range(1):
+
+            for i in range(8):
                 sample, timestamp = self.inlet.pull_sample()
+                print("Active")
                 for value in sample:
                     self.channel_data[localCount] = value
                     localCount = localCount + 1
@@ -448,28 +475,42 @@ class home(base_app):
 
             self.channel_data[localCount] = perception
             localCount = 0
-            print(self.channel_data)
+            print(sample)
+
+            '''
+            #Trying out wavelet
+            for i in range(8):
+                sample, timestamp = self.inlet.pull_sample()
+                coeffs,freq = pywt.cwt(sample,scales,'morl')
+                self.channel_data[i] = np.array(coeffs)
+            #sample = pywt.sample
+            self.channel_data[8] = perception
+            '''
 
             df = pd.DataFrame.from_dict(self.channel_data, orient="index")
             df = df.T
             df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv", mode="a", header=False)
             self.channel_data = {}
 
-            time.sleep(0.01)
         return
 
     def readOffStateTime(self):
+        fs = 250
         localCount = 0
         perception = 2
+        scales = np.arange(1,129)
+        data = {}
+        temp = []
         script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
         script_dir = str(script_dir) + "/UserData"
 
-        fs = 250/2
-
         while self.read == True:
 
-            for i in range(16):
+            #for i in range(1):
+
+            for i in range(8):
                 sample, timestamp = self.inlet.pull_sample()
+                print("Off")
                 for value in sample:
                     self.channel_data[localCount] = value
                     localCount = localCount + 1
@@ -477,14 +518,23 @@ class home(base_app):
 
             self.channel_data[localCount] = perception
             localCount = 0
-            print(self.channel_data)
+            print(sample)
+
+            '''
+            #Trying out wavelet
+            for i in range(8):
+                sample, timestamp = self.inlet.pull_sample()
+                coeffs,freq = pywt.cwt(sample,scales,'morl')
+                self.channel_data[i] = np.array(coeffs).astype("float64")
+            #sample = pywt.sample
+            self.channel_data[8] = perception
+            '''
 
             df = pd.DataFrame.from_dict(self.channel_data, orient="index")
             df = df.T
             df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv", mode="a", header=False)
             self.channel_data = {}
 
-            time.sleep(0.01)
         return
 
     def neutralStateTimer(self):
@@ -535,7 +585,7 @@ class home(base_app):
         else:
             self.read = False
             self.startOnce = True
-            self.screens[self.SCR_CALIBRATION8].counter_1.set(10)
+            self.screens[self.SCR_CALIBRATION8].counter_1.set(2)
             #self.switchScreen(self.SCR_CALIBRATION6, "Calibration") #Redo Button
             self.switchScreen(self.SCR_CALIBRATION7, "Calibration") #Move onto next screen
             #Read in audio file for calibration completion
@@ -564,7 +614,7 @@ class home(base_app):
         else:
             self.read = False
             self.startOnce = True
-            self.screens[self.SCR_CALIBRATION9].counter_1.set(10)
+            self.screens[self.SCR_CALIBRATION9].counter_1.set(2)
             self.switchScreen(self.SCR_CALIBRATION10, "Calibration") #Move onto the next calibration screen for on and off
             #Read in audio file for calibration completion
             script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
@@ -573,12 +623,12 @@ class home(base_app):
             #pygame.mixer.music.load(abs_file_path)
             #pygame.mixer.music.play(loops=0)
             self.loops = self.loops + 1
-            if self.loops > 0 and self.Time == True:
+            if self.loops > 9 and self.Time == True:
                 #threading.Thread(target=self.generateKNNModel).start()
                 threading.Thread(target=self.generateCNNModel).start()
                 return
-            elif self.loops > 0 and self.FFT == True:
-                threading.Thread(target=self.generateKNNModel).start()
+            elif self.loops > 9 and self.FFT == True:
+                threading.Thread(target=self.generateCNNModel).start()
                 return
             else:
                 self.switchScreen(self.SCR_CALIBRATION2, "Calibration")
@@ -624,67 +674,98 @@ class home(base_app):
     def readGeneralBrainData(self):
 
         if self.FFT == True:
+            print("FFT")
             fs = 250/2
-            while self.model != None:
-                for i in range(8):
-                    sample,timestamp = self.inlet.pull_sample()
-                    if i not in self.channel_data:
-                        PSD = (np.square(sample))/(2*0.9765625)
-                        self.dataInput.append(st.mean(PSD))
-
-                #df = pd.DataFrame.from_dict(self.channel_data, orient="index")
-                #df = df.T
-                #self.channel_data = {}
-                #df = df.drop(df.columns[[0]], axis=1)
-                #data = df.iloc[:, 0:self.model.numChannels]
-
-                #sc_X = StandardScaler()
-                #data = sc_X.fit_transform(data)
-                #print(data)
-                #print(self.dataInput)
-                temp = [self.dataInput]
-                print(temp)
-                #temp = np.array(self.dataInput)
-                #temp = self.dataInput.iloc[:, 0:self.model.numChannels]
-                modelOutput = self.model.classifier.predict(temp)
-                self.dataInput = []
-                #print(modelOutput)
-
-                if modelOutput == 1:
-                    #self.arduinoBoard.board.digitalWrite(13, "HIGH")
-                    print("On")
-                    #time.sleep(1)
-                elif modelOutput == 2:
-                    #self.arduinoBoard.board.digitalWrite(13,"LOW")
-                    print("Off")
-                    #time.sleep(1)
-                elif modelOutput == 0:
-                    print("Neutral")
-
-        elif self.Time == True:
-            class_names = ['On','Off']
-            fs = 250/2
-            x = range(16)
+            class_names = ['Neutral','On','Off']
 
             while self.model != None:
                 temp = []
-                for i in x:
+                for i in range(64):
                     sample, timestamp = self.inlet.pull_sample()
-                    for value in sample:
-                        temp.append(value)
+                    PSD = (np.square(sample))/(2*0.9765625)
+                    temp.append(st.mean(PSD))
 
                 data = np.array(temp)
-                data = data.reshape(1, 128, 1, 1)
+                data = data.reshape(1, 64, 1, 1)
 
-                print(class_names[np.argmax(self.model.classifier.predict(data))])
-                '''
-                if class_names[np.argmax(self.model.classifier.predict(data))] == "On":
-                    self.switchScreen(self.SCR_TESTING2, "Calibration")
-                    self.master.focus()
-                elif class_names[np.argmax(self.model.classifier.predict(data))] == "Off":
-                    self.switchScreen(self.SCR_TESTING3, "Calibration")
-                    self.master.focus()
-                '''
+
+                out = class_names[np.argmax(self.model.classifier.predict(data))]
+
+                if out == "On":
+                    print("ON")
+                    out = "On"
+                elif out == "Off":
+                    print("OFF")
+                elif out == "Neutral":
+                    print(("NEUTRAL"))
+
+
+
+        if self.Time == True:
+            class_names = ['Neutral','On','Off']
+            fs = 250
+            scales = np.arange(1,129)
+            count = 0
+            self.inlet = self.lslServer()
+            numSamples = 8*8
+            while self.model != None:
+                #for i in x:
+                #if count == 500:
+                self.inlet = self.lslServer()
+                    #count = 0
+
+                temp = []
+                for i in range(8):
+                    sample, timestamp = self.inlet.pull_sample()
+                    coeffs,freq = pywt.cwt(sample,scales,'morl')
+                    temp.append(coeffs)
+
+                data = np.array(temp)
+                data = data.reshape(1, 128, numSamples, 1)
+
+                #print(class_names[np.argmax(self.model.classifier.predict(data))])
+                out = class_names[np.argmax(self.model.classifier.predict(data))]
+
+                if out == "On":
+                    print("ON")
+                elif out == "Off":
+                    print("OFF")
+                elif out == "Neutral":
+                    print("NEUTRAL")
+
+                count = count + 1
+
+
+        #Below is for without wavelet
+        '''
+        if self.Time == True:
+            class_names = ['Neutral','On','Off']
+            fs = 250
+            scale = np.arange(1,129)
+
+            while self.model != None:
+                temp = []
+                #for i in x:
+                sample, timestamp = self.inlet.pull_sample()
+                for value in sample:
+                    temp.append(value)
+
+                data = np.array(temp)
+                data = data.reshape(1, 8, 1, 1)
+
+
+                #print(class_names[np.argmax(self.model.classifier.predict(data))])
+                out = class_names[np.argmax(self.model.classifier.predict(data))]
+
+                if out == "On":
+                    print("ON")
+                    out = "On"
+                elif out == "Off":
+                    print("OFF")
+                elif out == "Neutral":
+                    print(("NEUTRAL"))
+            '''
+
 
 
 

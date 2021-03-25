@@ -74,7 +74,7 @@ class base_app:
 
     def lslServer(self):
         # first resolve an EEG stream on the lab network
-        print("looking for an EEG stream...")
+        #print("looking for an EEG stream...")
         self.streams = resolve_stream('type', 'EEG')
         # create a new inlet to read from the stream
         self.inlet = StreamInlet(self.streams[0])
