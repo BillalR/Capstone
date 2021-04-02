@@ -408,7 +408,7 @@ class home(base_app):
 
             #for i in range(1):
 
-            for i in range(8):
+            for i in range(32):
                 sample, timestamp = self.inlet.pull_sample()
                 print("neutral")
                 for value in sample:
@@ -465,7 +465,7 @@ class home(base_app):
 
             #for i in range(1):
 
-            for i in range(8):
+            for i in range(32):
                 sample, timestamp = self.inlet.pull_sample()
                 print("Active")
                 for value in sample:
@@ -508,7 +508,7 @@ class home(base_app):
 
             #for i in range(1):
 
-            for i in range(8):
+            for i in range(32):
                 sample, timestamp = self.inlet.pull_sample()
                 print("Off")
                 for value in sample:
@@ -703,28 +703,33 @@ class home(base_app):
 
         if self.Time == True:
             class_names = ['Neutral','On','Off']
-            fs = 250
+            fs = 32
             scales = np.arange(1,129)
             count = 0
             self.inlet = self.lslServer()
-            numSamples = 8*8
+            numSamples = 256
             while self.model != None:
                 #for i in x:
                 #if count == 500:
                 self.inlet = self.lslServer()
                     #count = 0
+                print("Now")
 
-                temp = []
-                for i in range(8):
-                    sample, timestamp = self.inlet.pull_sample()
-                    coeffs,freq = pywt.cwt(sample,scales,'morl')
-                    temp.append(coeffs)
 
-                data = np.array(temp)
-                data = data.reshape(1, 128, numSamples, 1)
+                temp = np.ndarray((1,fs,numSamples))
+
+                for j in range(32):
+                    count = 0
+                    for i in range(32):
+                        sample, timestamp = self.inlet.pull_sample()
+                        for val in sample:
+                            temp[:,j,count] = val
+                            cout = count + 1
+
+                data = temp.reshape(1, fs, numSamples)
 
                 #print(class_names[np.argmax(self.model.classifier.predict(data))])
-                out = class_names[np.argmax(self.model.classifier.predict(data))]
+                out = class_names[np.argmax(self.model.classifier.predict(temp))]
 
                 if out == "On":
                     print("ON")

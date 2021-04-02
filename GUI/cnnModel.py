@@ -6,7 +6,7 @@ import pywt
 import os
 from PIL import Image
 import tensorflow.keras as tf
-from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Activation, Dropout, BatchNormalization
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, Conv1D, MaxPool2D, MaxPool1D, Activation, Dropout, BatchNormalization
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.callbacks import History
 history = History()
@@ -21,7 +21,6 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import accuracy_score
 
 
-
 '''
 PATH="~/.pyenv/versions/3.8.0/bin:${PATH}"
 eval "$(pyenv init -)"
@@ -34,14 +33,16 @@ class CNN:
         print("Generating Model")
         self.dataset = pd.read_csv(data)
         self.dataset = self.dataset.drop(self.dataset.columns[[0]], axis=1)
-        self.numChannels = 8
+        self.numChannels = 8*8
         #self.numSamples = 8
-        self.numSamples = 8*8
+        self.numSamples = 8
         self.waveletSamples = 128
         self.nDataSetLength = len(self.dataset)
         self.localCount = 0
         self.dX = {}
-        self.scales = np.arange(1,65)
+        self.scales = np.arange(1,17)
+        self.scales_len = np.max(self.scales)
+        self.fs = 32
 
         '''
         self.X = self.dataset.iloc[:, 0:self.numSamples].values.reshape(self.dataset.shape[0], self.numSamples, 1, 1)
@@ -56,45 +57,65 @@ class CNN:
         #The input shape just needs to be changed back to (8,1,1) and therefore you can work with the typical input data
 
         '''
-        self.X = self.dataset.iloc[:, 0:self.numSamples].values#.reshape(self.dataset.shape[0], 8, 1, 1)
-        self.Y = self.dataset.iloc[:, self.numSamples].values
+        self.X = self.dataset.iloc[:, 0:self.numChannels].values#.reshape(self.dataset.shape[0], 8, 1, 1)
+        # self.x_data = np.ndarray((self.nDataSetLength,self.scales_len,self.fs,self.numChannels)) #for wavelet CNN
+        self.x_data = np.ndarray((self.nDataSetLength,self.fs,self.numChannels)) #for time CNN
+        self.Y = self.dataset.iloc[:, self.numChannels].values
+        self.zero = []
 
-        #Below for Wavelet
-        print("Looping through your bigass dataset")
-        for i in self.X:
-            coeffs,freq = pywt.cwt(i,self.scales,'morl', 1/250)
-            self.dX[self.localCount] = coeffs
-            self.localCount = self.localCount + 1
+        #wavelet of moving window, split by channels then combined
+        # for i in range(self.nDataSetLength - self.fs): #from 0 to last buffer needed (end value - buffer size)
+        #     if all(x==self.Y[i] for x in self.Y[i:(i+self.fs)]): #make sure all in buffer are of the same state
+        #         for j in range(self.numChannels): #loop channels
+        #             coeffs,freq = pywt.cwt(self.X[i:(i+self.fs),j],self.scales,'cgau5',1/self.fs) #take wavelet of channel in buffer
+        #             coeff_norm = (coeffs - np.min(coeffs))/np.ptp(coeffs) #normalize to 0-1
+        #             self.x_data[i,:,:,j] == coeffs #push to data array at specific channel
+        #     else:
+        #         self.zero.append(i) #add indeces of garbage data
 
+        #wavelet of moving window of all channels at once
+        # for i in range(self.nDataSetLength - self.fs): #from 0 to last buffer needed (end value - buffer size)
+        #     if all(x==self.Y[i] for x in self.Y[i:(i+self.fs)]): #make sure all in buffer are of the same state
+        #         coeffs,freq = pywt.cwt(self.X[i:(i+self.fs),:],self.scales,'gaus5',1/self.fs) #take wavelet of channel in buffer
+        #         coeff_norm = (coeffs - np.min(coeffs))/np.ptp(coeffs) #normalize to 0-1
+        #         self.x_data[i,:,:,:] == coeffs #push to data array at specific channel
+        #     else:
+        #         self.zero.append(i) #add indeces of garbage data
 
-        self.dX = np.array(list(self.dX.values()))
-        self.dX = self.dX.reshape(self.dataset.shape[0], 64, self.numSamples, 1)
+        #windowing the time data
+        for i in range(self.nDataSetLength - self.fs):
+            if all(x==self.Y[i] for x in self.Y[i:(i+self.fs)]):
+                for j in range(self.numChannels):
+                    self.x_data[i,:,j] = self.X[i:(i+self.fs),j]
+            else:
+                self.zero.append(i)
 
+        # #remove all x_data wavelets that equal zero & corresponding y data
+        self.x_data = np.delete(self.x_data, self.zero, axis=0)
+        self.Y = np.delete(self.Y, self.zero, axis=0)
+        print(self.x_data.shape)
 
         self.dY = tf.utils.to_categorical(self.Y, num_classes=3)
-        print(self.dY)
 
-        self.ddX = np.array(self.dX)
-        self.dY = np.array(self.dY)
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.x_data, self.dY, random_state=0, test_size=0.2)
 
+        # self.shape = (self.scales_len, self.fs, self.numChannels) #for wavelet
+        self.shape = (self.fs,self.numChannels) #for time
 
-
-
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.ddX, self.dY, random_state=0, test_size=0.2)
-
-
-        #create self.classifier
+        #create self.classifier, change between Conv/MaxPool 1 and 2D for time and wavelet respectively
         self.classifier = Sequential()
-        self.classifier.add(Conv2D(32, 3, data_format='channels_last', activation='relu', input_shape=(64,self.numSamples,1), padding='same'))
-        self.classifier.add(MaxPool2D(pool_size=(2,2), strides=(2,2),padding='same'))
+        self.classifier.add(Conv1D(64, 3, data_format='channels_last', activation='relu', input_shape=self.shape, padding='same'))
+        self.classifier.add(MaxPool1D(pool_size=2, strides=2,padding='same'))
         self.classifier.add(BatchNormalization())
+        self.classifier.add(Dropout(0.2))
 
-        self.classifier.add(Conv2D(32, 3, data_format='channels_last', activation='relu', input_shape=(64,self.numSamples,1), padding='same'))
-        self.classifier.add(MaxPool2D(pool_size=(2,2), strides=(2,2),padding='same'))
+        self.classifier.add(Conv1D(64, 3, data_format='channels_last', activation='relu', input_shape=self.shape, padding='same'))
+        self.classifier.add(MaxPool1D(pool_size=2, strides=2,padding='same'))
         self.classifier.add(BatchNormalization())
+        self.classifier.add(Dropout(0.2))
 
-        self.classifier.add(Conv2D(32, 3, data_format='channels_last', activation='relu', input_shape=(64,self.numSamples,1), padding='same'))
-        self.classifier.add(MaxPool2D(pool_size=(2,2), strides=(2,2),padding='same'))
+        self.classifier.add(Conv1D(64, 3, data_format='channels_last', activation='relu', input_shape=self.shape, padding='same'))
+        self.classifier.add(MaxPool1D(pool_size=2, strides=2,padding='same'))
         self.classifier.add(BatchNormalization())
 
         self.classifier.add(Flatten())
@@ -103,13 +124,10 @@ class CNN:
         self.classifier.add(Dense(3))
         self.classifier.add(Activation('softmax'))
 
-
-
-
-        #compile model using accuracy to measure model performance
+        # #compile model using accuracy to measure model performance
         self.classifier.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-        #train the model
+        # #train the model
         self.classifier.fit(self.X_train, self.y_train, validation_data=(self.X_test, self.y_test), epochs=60)
 
         test_error, test_accuracy = self.classifier.evaluate(self.X_test, self.y_test, verbose=1)
