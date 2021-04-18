@@ -301,22 +301,22 @@ class home(base_app):
             print("Data has been overridden")
 
         while self.read == True:
-
-            #for i in range(16):
-            for j in range(64):
-                sample, timestamp = self.inlet.pull_sample()
-                PSD = (np.square(sample))/(2*0.9765625)
-                self.channel_data[localCount] = st.mean(PSD)
-                localCount = localCount + 1
-
-            self.channel_data[localCount] = perception
-            localCount = 0
-            print(sample)
+            for i in range(9):
+                if i == 8:
+                    perception = 0
+                    self.channel_data[i] = perception
+                else:
+                    sample,timestamp = self.inlet.pull_sample()
+                    if i not in self.channel_data:
+                        #F, PSD = signal.welch(sample, fs, nperseg=len(sample))
+                        PSD = (np.square(sample))/(2*0.9765625)
+                        self.channel_data[i] = st.mean(PSD)
+            print(self.channel_data)
 
             if self.count == 0:
                 df = pd.DataFrame.from_dict(self.channel_data, orient="index")
                 df = df.T
-                df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv", mode="w", header=False)
+                df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv", mode="w", header=self.channelNames)
                 self.channel_data = {}
                 self.count = self.count + 1
             else:
@@ -334,17 +334,16 @@ class home(base_app):
         perception = 1
 
         while self.read == True:
-
-            #for i in range(16):
-            for j in range(64):
-                sample, timestamp = self.inlet.pull_sample()
-                PSD = (np.square(sample))/(2*0.9765625)
-                self.channel_data[localCount] = st.mean(PSD)
-                localCount = localCount + 1
-
-            self.channel_data[localCount] = perception
-            localCount = 0
-            print(sample)
+            for i in range(9):
+                if i == 8:
+                    perception = 1
+                    self.channel_data[i] = perception
+                else:
+                    sample,timestamp = self.inlet.pull_sample()
+                    if i not in self.channel_data:
+                        #F, PSD = signal.welch(sample, fs, nperseg=len(sample))
+                        PSD = (np.square(sample))/(2*0.9765625)
+                        self.channel_data[i] = st.mean(PSD)
 
             print(self.channel_data)
             df = pd.DataFrame.from_dict(self.channel_data, orient="index")
@@ -361,18 +360,17 @@ class home(base_app):
         perception = 2
 
         while self.read == True:
-
-            #for i in range(16):
-            for j in range(64):
-                sample, timestamp = self.inlet.pull_sample()
-                PSD = (np.square(sample))/(2*0.9765625)
-                self.channel_data[localCount] = st.mean(PSD)
-                localCount = localCount + 1
-
-            self.channel_data[localCount] = perception
-            localCount = 0
-            print(sample)
-
+            for i in range(9):
+                if i == 8:
+                    perception = 2
+                    self.channel_data[i] = perception
+                else:
+                    sample,timestamp = self.inlet.pull_sample()
+                    if i not in self.channel_data:
+                        #F, PSD = signal.welch(sample, fs, nperseg=len(sample))
+                        PSD = (np.square(sample))/(2*0.9765625)
+                        self.channel_data[i] = st.mean(PSD)
+            print(self.channel_data)
             df = pd.DataFrame.from_dict(self.channel_data, orient="index")
             df = df.T
             df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataFFT.csv", mode="a", header=False)
@@ -623,12 +621,12 @@ class home(base_app):
             #pygame.mixer.music.load(abs_file_path)
             #pygame.mixer.music.play(loops=0)
             self.loops = self.loops + 1
-            if self.loops > 9 and self.Time == True:
+            if self.loops > 0 and self.Time == True:
                 #threading.Thread(target=self.generateKNNModel).start()
                 threading.Thread(target=self.generateCNNModel).start()
                 return
-            elif self.loops > 9 and self.FFT == True:
-                threading.Thread(target=self.generateCNNModel).start()
+            elif self.loops > 6 and self.FFT == True:
+                threading.Thread(target=self.generateKNNModel).start()
                 return
             else:
                 self.switchScreen(self.SCR_CALIBRATION2, "Calibration")
@@ -674,30 +672,32 @@ class home(base_app):
     def readGeneralBrainData(self):
 
         if self.FFT == True:
-            print("FFT")
             fs = 250/2
-            class_names = ['Neutral','On','Off']
 
+            #modelOutput = []
             while self.model != None:
-                temp = []
-                for i in range(64):
-                    sample, timestamp = self.inlet.pull_sample()
-                    PSD = (np.square(sample))/(2*0.9765625)
-                    temp.append(st.mean(PSD))
+                self.inlet = self.lslServer()
+                #for j in range(16):
+                for i in range(8):
+                    sample,timestamp = self.inlet.pull_sample()
+                    if i not in self.channel_data:
+                        PSD = (np.square(sample))/(2*0.9765625)
+                        self.dataInput.append(st.mean(PSD))
 
-                data = np.array(temp)
-                data = data.reshape(1, 64, 1, 1)
+                temp = [self.dataInput]
+
+                modelOutput = self.model.classifier.predict(temp)
+                self.dataInput = []
 
 
-                out = class_names[np.argmax(self.model.classifier.predict(data))]
+                #out = st.mode(modelOutput)
 
-                if out == "On":
-                    print("ON")
-                    out = "On"
-                elif out == "Off":
-                    print("OFF")
-                elif out == "Neutral":
-                    print(("NEUTRAL"))
+                if modelOutput == 1:
+                    print("On")
+                elif modelOutput == 2:
+                    print("Off")
+                elif modelOutput == 0:
+                    print("Neutral")
 
 
 

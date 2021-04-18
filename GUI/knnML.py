@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import f1_score
@@ -28,27 +29,27 @@ class KNN:
         else:
             self.k = int(math.sqrt(self.nDataSetLength))
 
-        self.X = np.array(self.dataset.drop(["Perception"],1))
-        self.Y = np.array(self.dataset["Perception"])
-        #self.X = self.dataset.iloc[:, 0:self.numChannels]
-        #self.Y = self.dataset.iloc[:, self.numChannels]
+        #self.X = np.array(self.dataset.drop(["Perception"],1))
+        #self.Y = np.array(self.dataset["Perception"])
+
+        #self.X = self.dataset.iloc[:, 0:self.numChannels].values
+        #self.Y = self.dataset.iloc[:, self.numChannels].values
+        self.X = self.dataset.iloc[:, 0:self.numChannels].values
+        self.Y = self.dataset.iloc[:, self.numChannels].values
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.Y, random_state=0, test_size=0.2)
 
-        #self.sc_X = StandardScaler()
+        #self.sc_X = MinMaxScaler()
         #self.X_train = self.sc_X.fit_transform(self.X_train)
         #self.X_test = self.sc_X.transform(self.X_test)
+        #print(self.X_train)
+        #print(self.X_test)
 
         self.classifier = KNeighborsClassifier(n_neighbors=self.k, p=3, metric='euclidean')
         self.classifier.fit(self.X_train,self.y_train)
 
         self.y_pred = self.classifier.predict(self.X_test)
         print("Model Generated")
-        #print(self.X)
-        #print(self.X_train)
 
-        #evaluate the model
-        #self.cm = confusion_matrix(self.y_test,self.y_pred)
-        #print(cm)
         print(f1_score(self.y_test,self.y_pred, average='macro'))
         print(accuracy_score(self.y_test,self.y_pred))
