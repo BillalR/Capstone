@@ -45,11 +45,11 @@ class KNN:
         #print(self.X_train)
         #print(self.X_test)
 
-        self.classifier = KNeighborsClassifier(n_neighbors=self.k, p=3, metric='euclidean')
+        self.classifier = KNeighborsClassifier(n_neighbors=self.k//10, p=3, metric='euclidean')
         self.classifier.fit(self.X_train,self.y_train)
 
         self.y_pred = self.classifier.predict(self.X_test)
         print("Model Generated")
 
-        print(f1_score(self.y_test,self.y_pred, average='macro'))
+        #print(f1_score(self.y_test,self.y_pred, average='macro'))
         print(accuracy_score(self.y_test,self.y_pred))

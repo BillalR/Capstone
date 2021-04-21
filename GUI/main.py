@@ -673,6 +673,8 @@ class home(base_app):
 
         if self.FFT == True:
             fs = 250/2
+            countOn = 0
+            countOff = 0
 
             #modelOutput = []
             while self.model != None:
@@ -693,11 +695,27 @@ class home(base_app):
                 #out = st.mode(modelOutput)
 
                 if modelOutput == 1:
-                    print("On")
+                    #print("On")
+
+                    countOn += 1
+                    if countOn == 2:
+                        print("On")
+                        countOn = 0
+                        countOff = 0
+
                 elif modelOutput == 2:
-                    print("Off")
+                    #print("Off")
+
+                    countOff += 1
+                    if countOff == 2:
+                        print("Off")
+                        countOff = 0
+                        countOn = 0
+
                 elif modelOutput == 0:
                     print("Neutral")
+                    countOn = 0
+                    countOff = 0
 
 
 
