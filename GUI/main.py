@@ -33,7 +33,8 @@ from testingScreenPlot import *
 from quickScreen import *
 from keyboardScreen import *
 from knnML import *
-from cnnModel import *
+#from cnnModel import *
+from testkey import *
 from svmModel import *
 
 '''
@@ -51,8 +52,6 @@ class home(base_app):
 
         super().__init__(master)
         self.master = master
-
-
 
         self.SCR_MAIN = -1
         self.SCR_CALIBRATION1 = -1
@@ -102,6 +101,9 @@ class home(base_app):
         self.loops = 0
         self.count = 0
 
+        #General Variables for Simplicity
+        self.calCycles = 6
+
         #Main screen Initialize and Configuration
         self.SCR_MAIN = self.numScreens
         self.numScreens += 1
@@ -120,7 +122,6 @@ class home(base_app):
         self.screens[self.SCR_TESTING].CNNButton.configure(command= self.combine_funcs(lambda: threading.Thread(target=self.generateCNNModel).start(), self.domainTimeInit))
         self.screens[self.SCR_TESTING].KNNButton.configure(command= self.combine_funcs(lambda: threading.Thread(target=self.generateKNNModel).start(),self.domainFFTInit))
 
-
         #Testing Screen TWO
         self.SCR_TESTING2 = self.numScreens
         self.numScreens += 1
@@ -131,12 +132,12 @@ class home(base_app):
         self.numScreens += 1
         self.screens.append(testingScreen3(self.frame))
 
-        #Calibration Screen 3 Initialize and Configuration
+        #Quick Menu Initialize and Configuration
         self.SCR_QUICK = self.numScreens
         self.numScreens += 1
         self.screens.append(quickScreen(self.frame))
 
-        #Calibration Screen 3 Initialize and Configuration
+        #Keyboard Screen Initialize and Configuration
         self.SCR_KEYBOARD = self.numScreens
         self.numScreens += 1
         self.screens.append(keyboardScreen(self.frame))
@@ -151,7 +152,7 @@ class home(base_app):
         self.numScreens += 1
         self.screens.append(calibrationScreen9(self.frame))
 
-        #Calibration Screen 7 Initialize and Configuration
+        #Calibration Screen 8 Initialize and Configuration
         self.SCR_CALIBRATION8 = self.numScreens
         self.numScreens += 1
         self.screens.append(calibrationScreen8(self.frame))
@@ -220,10 +221,25 @@ class home(base_app):
 
         #Popup init
         self.messageWindow = pop.popupWindow(self.master)
+
         #Initalize mixer for sound notifications
         pygame.mixer.init()
 
+        #Initialize data storage folder
+        self.dataFolder()
 
+    '''
+    Functions
+    '''
+
+    def dataFolder(self):
+        script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
+        script_dir = str(script_dir) + "/UserData"
+        print(script_dir)
+        if os.path.isdir(script_dir):
+            pass
+        else:
+            os.mkdir(script_dir)
 
     def switchUser(self, *args):
         if self.header.user.get() == "New User...":
@@ -569,11 +585,10 @@ class home(base_app):
             #pygame.mixer.music.load(abs_file_path)
             #pygame.mixer.music.play(loops=0)
             self.loops = self.loops + 1
-            if self.loops > 0 and self.Time == True:
-                #threading.Thread(target=self.generateKNNModel).start()
+            if self.loops > self.calCycles and self.Time == True:
                 threading.Thread(target=self.generateCNNModel).start()
                 return
-            elif self.loops > 6 and self.FFT == True:
+            elif self.loops > self.calCycles and self.FFT == True:
                 threading.Thread(target=self.generateKNNModel).start()
                 return
             else:
@@ -615,10 +630,12 @@ class home(base_app):
 
     '''
 
-    #def testOutput(self):
-    #    pass
-
     def readGeneralBrainData(self):
+        self.switchScreen(self.SCR_CALIBRATION10, "Calibration") #Switch to the draw screen
+
+        '''
+        Output functionality with the use of FFT calibration
+        '''
         if self.FFT == True:
             fs = 250/2
             countOn = 0
@@ -659,6 +676,9 @@ class home(base_app):
                     countOn = 0
                     countOff = 0
 
+        '''
+        Output functionality with the use of Time calibration
+        '''
         if self.Time == True:
             class_names = ['Neutral','On','Off']
             fs = 32
@@ -667,15 +687,8 @@ class home(base_app):
             self.inlet = self.lslServer()
             numSamples = 256
             while self.model != None:
-                #for i in x:
-                #if count == 500:
                 self.inlet = self.lslServer()
-                    #count = 0
-                print("Now")
-
-
                 temp = np.ndarray((1,fs,numSamples))
-
                 for j in range(32):
                     count = 0
                     for i in range(32):
@@ -685,8 +698,6 @@ class home(base_app):
                             cout = count + 1
 
                 data = temp.reshape(1, fs, numSamples)
-
-                #print(class_names[np.argmax(self.model.classifier.predict(data))])
                 out = class_names[np.argmax(self.model.classifier.predict(temp))]
 
                 if out == "On":
@@ -702,15 +713,13 @@ class home(base_app):
 
     def runNetwork(self, *args):
         self.messageWindow.popupConnection()
-        #Popup needs to be forced refresh to display
-        self.master.update()
+        self.master.update() #Popup needs to be forced refresh to display
         self.serverConnect()
 
     def infoLogo(self):
         self.master.focus()
         self.messageWindow.popupInfo()
-        #Popup needs to be forced refresh to display
-        self.master.update()
+        self.master.update() #Popup needs to be forced refresh to display
 
 
     def updateUserSelection(self):

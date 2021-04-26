@@ -16,8 +16,6 @@ class quickScreen:
             self.quickFrame.rowconfigure(rows, weight = 1)
         for columns in range(0,150):
             self.quickFrame.columnconfigure(columns, weight = 1)
-        #### define center frame widgets
-
 
         #pack the center frame
         self.quickFrame.pack(expand = 1, fill = 'both')

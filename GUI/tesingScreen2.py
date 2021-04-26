@@ -4,7 +4,7 @@ import os
 from PIL import ImageTk, Image
 from AppSetup.window_setup import *
 
-class calibrationScreen10:
+class tesingScreen2:
 
     def __init__(self,master):
 
@@ -43,7 +43,6 @@ class calibrationScreen10:
                                                  text="over to the test section to utilize your brain powers.",
                                                  style = "overBackground.TLabel")
         self.calibrationInstructions2.grid(column=25,row=7,columnspan=1,rowspan=1,padx=30)
-
 
 
         #pack the center frame

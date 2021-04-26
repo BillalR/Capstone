@@ -6,6 +6,7 @@ import time
 import serial
 import socket
 import threading as thread
+import pathlib
 from pylsl import StreamInlet, resolve_stream
 
 #Import window components
@@ -28,9 +29,6 @@ class base_app:
             self.removable_frame = removable_frame
         self.master.configure(bg = 'white')
 
-        #Initialize data storage folder
-        self.dataFolder()
-
         #Master Styles
         self.style = ttk.Style()
         winSet.init_default_window(self.master, self.style)
@@ -44,17 +42,6 @@ class base_app:
         #init the center screen (screens need to be placed on this frame)
         self.frame = ttk.Frame(self.removable_frame, style='TFrame')
         self.frame.pack(expand = 1, fill = 'both')
-
-        #define variables for the hidden quit button
-        self._countdown_to_quit = 5
-        self._countdown_time = time.time()
-
-        #self.arduinoBoard = ar.arduinoControl()
-
-
-
-
-
 
     def quitApp(self):
         os._exit(0)
@@ -74,7 +61,6 @@ class base_app:
 
     def lslServer(self):
         # first resolve an EEG stream on the lab network
-        #print("looking for an EEG stream...")
         self.streams = resolve_stream('type', 'EEG')
         # create a new inlet to read from the stream
         self.inlet = StreamInlet(self.streams[0])
@@ -86,15 +72,6 @@ class base_app:
                 f(*args, **kwargs)
         return combined_func
 
-    def dataFolder(self):
-        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-        rel_path = "UserData"
-        abs_file_path = os.path.join(script_dir, rel_path)
-
-        if os.path.isdir(abs_file_path):
-            pass
-        else:
-            os.mkdir(abs_file_path)
 
 #Launcher
 #######################################
