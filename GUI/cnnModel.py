@@ -34,7 +34,6 @@ class CNN:
         self.dataset = pd.read_csv(data)
         self.dataset = self.dataset.drop(self.dataset.columns[[0]], axis=1)
         self.numChannels = 8*8
-        #self.numSamples = 8
         self.numSamples = 8
         self.waveletSamples = 128
         self.nDataSetLength = len(self.dataset)
@@ -45,14 +44,6 @@ class CNN:
         self.fs = 32
 
         '''
-        self.X = self.dataset.iloc[:, 0:self.numSamples].values.reshape(self.dataset.shape[0], self.numSamples, 1, 1)
-        self.Y = self.dataset.iloc[:, self.numSamples].values
-
-
-        self.dY = tf.utils.to_categorical(self.Y, num_classes=3)
-
-        self.dX = np.array(self.X)
-        self.dY = np.array(self.dY)
 
         #The input shape just needs to be changed back to (8,1,1) and therefore you can work with the typical input data
 
@@ -62,25 +53,6 @@ class CNN:
         self.x_data = np.ndarray((self.nDataSetLength,self.fs,self.numChannels)) #for time CNN
         self.Y = self.dataset.iloc[:, self.numChannels].values
         self.zero = []
-
-        #wavelet of moving window, split by channels then combined
-        # for i in range(self.nDataSetLength - self.fs): #from 0 to last buffer needed (end value - buffer size)
-        #     if all(x==self.Y[i] for x in self.Y[i:(i+self.fs)]): #make sure all in buffer are of the same state
-        #         for j in range(self.numChannels): #loop channels
-        #             coeffs,freq = pywt.cwt(self.X[i:(i+self.fs),j],self.scales,'cgau5',1/self.fs) #take wavelet of channel in buffer
-        #             coeff_norm = (coeffs - np.min(coeffs))/np.ptp(coeffs) #normalize to 0-1
-        #             self.x_data[i,:,:,j] == coeffs #push to data array at specific channel
-        #     else:
-        #         self.zero.append(i) #add indeces of garbage data
-
-        #wavelet of moving window of all channels at once
-        # for i in range(self.nDataSetLength - self.fs): #from 0 to last buffer needed (end value - buffer size)
-        #     if all(x==self.Y[i] for x in self.Y[i:(i+self.fs)]): #make sure all in buffer are of the same state
-        #         coeffs,freq = pywt.cwt(self.X[i:(i+self.fs),:],self.scales,'gaus5',1/self.fs) #take wavelet of channel in buffer
-        #         coeff_norm = (coeffs - np.min(coeffs))/np.ptp(coeffs) #normalize to 0-1
-        #         self.x_data[i,:,:,:] == coeffs #push to data array at specific channel
-        #     else:
-        #         self.zero.append(i) #add indeces of garbage data
 
         #windowing the time data
         for i in range(self.nDataSetLength - self.fs):

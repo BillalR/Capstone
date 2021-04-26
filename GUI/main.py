@@ -83,7 +83,6 @@ class home(base_app):
 
         #Array lists of data
         self.channelNames = ["FP1","CZ","FZ","C3","C4","F3","O1","O2","Perception"]
-        #self.channelNames = ["FP1","CZ","FZ","C3","C4","Perception"]
         self.channel_data = {}
         self.time_data = {}
         self.dataInput = []
@@ -112,8 +111,6 @@ class home(base_app):
         self.SCR_TESTINGPLOT = self.numScreens
         self.numScreens += 1
         self.screens.append(testingScreenPlot(self.frame))
-        #self.screens[self.SCR_TESTING].testingButton.configure(command= lambda: threading.Thread(target=self.readGeneralBrainData).start())
-        #self.screens[self.SCR_TESTING].testingButton.configure(command= lambda: self.testData)
 
         #Testing Screen Initialize and Configuration
         self.SCR_TESTING = self.numScreens
@@ -226,8 +223,6 @@ class home(base_app):
         #Initalize mixer for sound notifications
         pygame.mixer.init()
 
-        #Initalize your model if the user already has calibration data
-
 
 
     def switchUser(self, *args):
@@ -308,7 +303,6 @@ class home(base_app):
                 else:
                     sample,timestamp = self.inlet.pull_sample()
                     if i not in self.channel_data:
-                        #F, PSD = signal.welch(sample, fs, nperseg=len(sample))
                         PSD = (np.square(sample))/(2*0.9765625)
                         self.channel_data[i] = st.mean(PSD)
             print(self.channel_data)
@@ -403,9 +397,6 @@ class home(base_app):
             print("Data has been overridden")
 
         while self.read == True:
-
-            #for i in range(1):
-
             for i in range(32):
                 sample, timestamp = self.inlet.pull_sample()
                 print("neutral")
@@ -416,18 +407,6 @@ class home(base_app):
 
             self.channel_data[localCount] = perception
             localCount = 0
-            #print(self.channel_data)
-
-
-            '''
-            #Trying out wavelet
-            for i in range(8):
-                sample, timestamp = self.inlet.pull_sample()
-                coeffs,freq = pywt.cwt(sample,scales,'morl')
-                self.channel_data[i] = np.array(coeffs)
-            #sample = pywt.sample
-            self.channel_data[8] = perception
-            '''
 
 
             if self.count == 0:
@@ -435,9 +414,6 @@ class home(base_app):
                 df = df.T
                 df.to_csv(str(script_dir) + "/" + self.header.user.get() + "/DataTime.csv", mode="a", header=False)
                 self.channel_data = {}
-
-
-
                 self.count = self.count + 1
             else:
                 df = pd.DataFrame.from_dict(self.channel_data, orient="index")
@@ -460,9 +436,6 @@ class home(base_app):
 
 
         while self.read == True:
-
-            #for i in range(1):
-
             for i in range(32):
                 sample, timestamp = self.inlet.pull_sample()
                 print("Active")
@@ -470,20 +443,9 @@ class home(base_app):
                     self.channel_data[localCount] = value
                     localCount = localCount + 1
 
-
             self.channel_data[localCount] = perception
             localCount = 0
             print(sample)
-
-            '''
-            #Trying out wavelet
-            for i in range(8):
-                sample, timestamp = self.inlet.pull_sample()
-                coeffs,freq = pywt.cwt(sample,scales,'morl')
-                self.channel_data[i] = np.array(coeffs)
-            #sample = pywt.sample
-            self.channel_data[8] = perception
-            '''
 
             df = pd.DataFrame.from_dict(self.channel_data, orient="index")
             df = df.T
@@ -503,9 +465,6 @@ class home(base_app):
         script_dir = str(script_dir) + "/UserData"
 
         while self.read == True:
-
-            #for i in range(1):
-
             for i in range(32):
                 sample, timestamp = self.inlet.pull_sample()
                 print("Off")
@@ -513,20 +472,9 @@ class home(base_app):
                     self.channel_data[localCount] = value
                     localCount = localCount + 1
 
-
             self.channel_data[localCount] = perception
             localCount = 0
             print(sample)
-
-            '''
-            #Trying out wavelet
-            for i in range(8):
-                sample, timestamp = self.inlet.pull_sample()
-                coeffs,freq = pywt.cwt(sample,scales,'morl')
-                self.channel_data[i] = np.array(coeffs).astype("float64")
-            #sample = pywt.sample
-            self.channel_data[8] = perception
-            '''
 
             df = pd.DataFrame.from_dict(self.channel_data, orient="index")
             df = df.T
@@ -635,8 +583,8 @@ class home(base_app):
 
     '''
     End of state accumulation functions
-
     '''
+
     '''
     Helper functions
     '''
@@ -660,6 +608,7 @@ class home(base_app):
     def domainFFTInit(self):
         self.FFT = True
         self.Time = False
+
     '''
 
     Start of running tests on brain wave data and ml model
@@ -670,16 +619,12 @@ class home(base_app):
     #    pass
 
     def readGeneralBrainData(self):
-
         if self.FFT == True:
             fs = 250/2
             countOn = 0
             countOff = 0
-
-            #modelOutput = []
             while self.model != None:
                 self.inlet = self.lslServer()
-                #for j in range(16):
                 for i in range(8):
                     sample,timestamp = self.inlet.pull_sample()
                     if i not in self.channel_data:
@@ -690,9 +635,6 @@ class home(base_app):
 
                 modelOutput = self.model.classifier.predict(temp)
                 self.dataInput = []
-
-
-                #out = st.mode(modelOutput)
 
                 if modelOutput == 1:
                     #print("On")
@@ -716,8 +658,6 @@ class home(base_app):
                     print("Neutral")
                     countOn = 0
                     countOff = 0
-
-
 
         if self.Time == True:
             class_names = ['Neutral','On','Off']
@@ -759,38 +699,6 @@ class home(base_app):
                 count = count + 1
 
 
-        #Below is for without wavelet
-        '''
-        if self.Time == True:
-            class_names = ['Neutral','On','Off']
-            fs = 250
-            scale = np.arange(1,129)
-
-            while self.model != None:
-                temp = []
-                #for i in x:
-                sample, timestamp = self.inlet.pull_sample()
-                for value in sample:
-                    temp.append(value)
-
-                data = np.array(temp)
-                data = data.reshape(1, 8, 1, 1)
-
-
-                #print(class_names[np.argmax(self.model.classifier.predict(data))])
-                out = class_names[np.argmax(self.model.classifier.predict(data))]
-
-                if out == "On":
-                    print("ON")
-                    out = "On"
-                elif out == "Off":
-                    print("OFF")
-                elif out == "Neutral":
-                    print(("NEUTRAL"))
-            '''
-
-
-
 
     def runNetwork(self, *args):
         self.messageWindow.popupConnection()
@@ -829,12 +737,6 @@ class home(base_app):
         elif self.header.CType.get() == "Connection Type":
             self.messageWindow.popupNoServer()
             return
-
-        #Change title of page and select the right button background
-        '''
-        self.screenName.set(str(page))
-        self.header.title.configure(textvariable=self.screenName)
-        '''
 
         if page == "Calibration":
             self.menuSelect.quickButton.configure(style="unpressed.TButton")

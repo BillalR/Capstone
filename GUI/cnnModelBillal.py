@@ -117,16 +117,6 @@ class CNN:
         self.classifier.add(Activation('softmax'))
 
 
-
-
-        '''
-        #compile model using accuracy to measure model performance
-        self.classifier.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-        #train the model
-        self.classifier.fit(self.X_train, self.y_train, validation_data=(self.X_test, self.y_test), epochs=60)
-        '''
-
         self.classifier.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
         self.classifier.fit(self.X_train, self.y_train, batch_size=16, epochs=60, verbose=1, validation_data=(self.X_test, self.y_test), callbacks=[history])
 

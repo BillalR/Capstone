@@ -44,17 +44,6 @@ class calibrationScreen4:
                                                     style="unpressed.TButton")
         self.calibrationContinueButton.grid(column=25,row=7,columnspan=1,rowspan=1,padx=30)
 
-        '''
-        self.calibrationInstructions2 = ttk.Label(self.calibFrame,
-                                                 text="We will begin with a Neutral State.",
-                                                 style = "overBackground.TLabel")
-        self.calibrationInstructions2.grid(column=25,row=6,columnspan=1,rowspan=1,padx=30)
-
-        self.calibrationInstructions3 = ttk.Label(self.calibFrame,
-                                                 text="Press button below to continue.",
-                                                 style = "overBackground.TLabel")
-        self.calibrationInstructions3.grid(column=25,row=7,columnspan=1,rowspan=1,padx=30)
-        '''
 
         #pack the center frame
         self.calibFrame.pack(expand = 1, fill = 'both')
