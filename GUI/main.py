@@ -212,7 +212,7 @@ class home(base_app):
         self.menuSelect.homeButton.configure(command= lambda: self.switchScreen(self.SCR_MAIN, "Home"), style="pressed.TButton")
         self.menuSelect.testButton.configure(command= lambda: self.switchScreen(self.SCR_TESTING, "Testing"),  style="unpressed.TButton")
         self.menuSelect.quickButton.configure(command=lambda: self.switchScreen(self.SCR_QUICK, "Quick Menu"), style="unpressed.TButton")
-        self.menuSelect.keyboardButton.configure(command=lambda: self.switchScreen(self.SCR_KEYBOARD, "Keyboard"), style="unpressed.TButton")
+        self.menuSelect.keyboardButton.configure(command=self.combine_funcs(lambda: self.switchScreen(self.SCR_KEYBOARD, "Keyboard"),lambda: threading.Thread(target=self.keyboardGeneralBrainData).start()), style="unpressed.TButton")
 
         #Trace calls from drop down menus
         self.header.user.trace("w", self.switchUser)
@@ -627,6 +627,42 @@ class home(base_app):
     Start of running tests on brain wave data and ml model
 
     '''
+
+    def keyboardGeneralBrainData(self):
+        
+
+        '''
+        Output functionality with the use of Time calibration
+        '''
+        if self.Time == True:
+            class_names = ['Neutral','On','Off']
+            fs = 32
+            scales = np.arange(1,129)
+            count = 0
+            self.inlet = self.lslServer()
+            numSamples = 256
+            while self.model != None:
+                self.inlet = self.lslServer()
+                temp = np.ndarray((1,fs,numSamples))
+                for j in range(32):
+                    count = 0
+                    for i in range(32):
+                        sample, timestamp = self.inlet.pull_sample()
+                        for val in sample:
+                            temp[:,j,count] = val
+                            cout = count + 1
+
+                data = temp.reshape(1, fs, numSamples)
+                out = class_names[np.argmax(self.model.classifier.predict(temp))]
+
+                if out == "On":
+                    print("ON")
+                elif out == "Off":
+                    print("OFF")
+                elif out == "Neutral":
+                    print("NEUTRAL")
+
+                count = count + 1
 
     def readGeneralBrainData(self):
         self.switchScreen(self.SCR_CALIBRATION10, "Calibration") #Switch to the draw screen
