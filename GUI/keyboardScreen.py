@@ -5,101 +5,148 @@ from AppSetup.window_setup import *
 from AppSetup.base_app import *
 
 buttons = [
-'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '(', ')', 'BACK',
-'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', 'CAPS',
-'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', '\\','/', '-', 'SHIFT',
-'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '?', '!', '_', 'CANCEL',
-'SPACE', 'ENTER']
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '<--',
+    'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'ENTER',
+    'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '',
+    'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'CLEAR',
+    'SPACE',
+]
+
+curBut = [-1,-1]
+buttonL = [[]]
 
 class keyboardScreen:
 
     def __init__(self,master):
 
         self.master = master
-        self.keyBoard = tk.TopLevel(self.master)
-        scr_w = self.master.winfo_screenwidth()
-        scr_h = self.master.winfo_screenheight()
-        x = (scr_w/2) - (w/2)
-        y = (scr_h) - (h)
-        self.keyBoard.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        self.keybFrame = ttk.Frame(self.master, style = 'osk.TFrame')
+
+        for rows in range(0,6):
+            self.keybFrame.rowconfigure(rows, weight = 1)
+        for cols in range(0,11):
+            self.keybFrame.columnconfigure(cols, weight = 1)
 
         #Text entry setup
         self.entryText = tk.StringVar()
         self.entryText.set('')
 
         #Entry box
-        self.Entry
+        self.entryFrame = ttk.Entry(self.keybFrame, textvariable=self.entryText)
+        self.entryFrame.grid(row = 0, column = 0, columnspan = 13)
 
-        self.keybFrame = ttk.Frame(self.master, style = 'TFrame')
-        self.keybFrame.pack(expand = 1, fill = 'both')
-
-        for rows in range(0,6):
-            self.keybFrame.rowconfigure(rows, weight = 1)
-        for cols in range(0,12):
-            self.keybFrame.columnconfigure(cols, weight = 1)
 
         self.initButtons()
-        #center frame that fits between the header and footer
-        self.keyboardFrame = tk.Frame(self.mainFrame, bg=background_color)
-        for rows in range (0,20):
-            self.keyboardFrame.rowconfigure(rows, weight = 1)
-        for columns in range(0,150):
-            self.keyboardFrame.columnconfigure(columns, weight = 1)
-        #### define center frame widgets
 
+    def leftKey(self, event):
+        if curBut == [-1,-1]:
+            curBut[:] = [0,0]
+            buttonL[0][0].state(["pressed"])
+        elif curBut[0] == 4:
+            buttonL[curBut[0]][curBut[1]].state(["!pressed"])
+            curBut[:] = [0,10]
+            buttonL[0][10].state(["pressed"])
+        else:
+            buttonL[curBut[0]][curBut[1]].state(["!pressed"])
+            curBut[:] = [curBut[0], (curBut[1]-1)%11]
+            buttonL[curBut[0]][curBut[1]%11].state(["pressed"])
 
-        #pack the center frame
-        self.keyboardFrame.pack(expand = 1, fill = 'both')
+    def rightKey(self, event):
+        if curBut == [-1,-1]:
+            curBut[:] = [0,0]
+            buttonL[0][0].state(["pressed"])
+        elif curBut[0] == 4:
+            buttonL[curBut[0]][curBut[1]].state(["!pressed"])
+            curBut[:] = [0,0]
+            buttonL[0][0].state(["pressed"])
+        else:
+            buttonL[curBut[0]][curBut[1]].state(["!pressed"])
+            curBut[:] = [curBut[0], (curBut[1]+1)%11]
+            buttonL[curBut[0]][curBut[1]%11].state(["pressed"])
 
+    def upKey(self, event):
+        if curBut == [-1,-1]:
+            curBut[:] = [0,0]
+            buttonL[0][0].state(["pressed"])
+        elif curBut[0] == 0:
+            buttonL[curBut[0]][curBut[1]].state(["!pressed"])
+            curBut[:] = [(curBut[0]-1)%5, 0]
+            buttonL[curBut[0]][curBut[1]%11].state(["pressed"])
+        else:
+            buttonL[curBut[0]][curBut[1]].state(["!pressed"])
+            curBut[:] = [(curBut[0]-1)%5, curBut[1]]
+            buttonL[curBut[0]][curBut[1]%11].state(["pressed"])
 
+    def downKey(self, event):
+        if curBut == [-1,-1]:
+            curBut[:] = [0,0]
+            buttonL[0][0].state(["pressed"])
+        elif curBut[0] == 3:
+            buttonL[curBut[0]][curBut[1]].state(["!pressed"])
+            curBut[:] = [(curBut[0]+1)%5, 0]
+            buttonL[curBut[0]][curBut[1]%11].state(["pressed"])
+        else:
+            buttonL[curBut[0]][curBut[1]].state(["!pressed"])
+            curBut[:] = [(curBut[0]+1)%5, curBut[1]]
+            buttonL[curBut[0]][curBut[1]%11].state(["pressed"])
+
+    def brainSelect(self, event):
+        if curBut == [-1,-1]:
+            curBut[:] = [0,0]
+            buttonL[0][0].state(["pressed"])
+        else:
+            buttonL[curBut[0]][curBut[1]].invoke()
+
+    def select(self,value, x, y):
+        if curBut != [-1,-1]:
+            buttonL[curBut[0]][curBut[1]].state(["!pressed"])
+        curBut[:] = [x,y]
+        buttonL[x][y].state(["pressed"])
+        if value == "CANCEL":
+            self.entryText.set('')
+            self.pack_forget()
+        elif value == "<--":
+            self.entryText.set(self.entryText.get()[:-1])
+        elif value == "SPACE":
+            self.entryText.set(self.entryText.get()+' ')
+        elif value == "ENTER" or value == "CLEAR":
+            self.entryText.set('')
+        else:
+            self.entryText.set(self.entryText.get()+value)
 
     def initButtons(self):
         varRow = 1
         varColumn = 0
         for button in buttons:
-            command = lambda x=button: self.select(x)
+            command=lambda x=button, i=varRow-1, j=varColumn: self.select(x, i, j)
 
             if button == "SPACE":
-                ttk.Button(self.keyboardFrame,text= button,command=command, style = 'space.osk.TButton').grid(row=varRow,column=varColumn, columnspan=13)
-                varColumn +=11
-            elif button == "ENTER":
-                ttk.Button(self.keyboardFrame,text= button,command=command, style = 'osk.TButton').grid(row=varRow,column=varColumn, columnspan=2)
-                varColumn +=1
+                tempButton = ttk.Button(self.keybFrame,text= button,command=command, style = "unpressedSmall.TButton")
+                buttonL[varRow-1].append(tempButton)
+                tempButton.grid(row=varRow,column=varColumn, columnspan=13)
+                varColumn +=9
             else:
-                ttk.Button(self.keyboardFrame,text= button,command=command, style = 'osk.TButton').grid(row=varRow,column=varColumn)
+                tempButton = ttk.Button(self.keybFrame,text= button,command=command, style = "unpressedSmall.TButton")
+                buttonL[varRow-1].append(tempButton)
+                tempButton.grid(row=varRow,column=varColumn, columnspan = 1, rowspan = 1)
                 varColumn +=1
 
-            if varColumn > 12:
+            if varColumn > 10:
                 varColumn = 0
                 varRow+=1
+                buttonL.append([])
 
-    def select(self,value):
-        global shiftActive
-        global capsActive
-        if value == "CANCEL":
-            entryText.set('')
-            finish()
-        elif value == "BACK":
-            entryText.set(entryText.get()[:-1])
-        elif value == "CAPS":
-            if capsActive:
-                capsActive = False
-            else:
-                capsActive = True
-        elif value == "SPACE":
-            entryText.set(entryText.get()+' ')
-        elif value == "SHIFT":
-            shiftActive = True
-        elif value == "ENTER":
-            finish()
-        elif shiftActive or capsActive:
-            entryText.set(entryText.get()+value.upper())
-            shiftActive = False
-        else :
-            entryText.set(entryText.get()+value)
+        self.keybFrame.bind('<Left>', self.leftKey)
+        self.keybFrame.bind('<Right>', self.rightKey)
+        self.keybFrame.bind('<Up>', self.upKey)
+        self.keybFrame.bind('<Down>', self.downKey)
+        self.keybFrame.bind('<Return>', self.brainSelect)
+        self.keybFrame.focus_set()
+
+
 
     def pack(self):
-        self.mainFrame.pack(expand = 1, fill = 'both')
+        self.keybFrame.pack(expand = 1, fill = 'both')
 
     def pack_forget(self):
-        self.mainFrame.pack_forget()
+        self.keybFrame.pack_forget()

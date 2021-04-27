@@ -19,6 +19,7 @@ button_height = 25
 button_padding = 15
 button_font = ('Helvetica Bold', 10)
 button_font_menu = ('Helvetica Bold', 12)
+button_font_menu2 = ('Helvetica Bold', 13)
 text_font = ('Helvetica', 11)
 app_font = ('Helvetica', 11)
 
@@ -67,6 +68,17 @@ def init_default_window(master, style):
                          font = button_font_menu,
                          wrap=tk.WORD)
     style.map('unpressed.TButton',background = [('pressed', border_color),('disabled',grey)],foreground=[('active', background_color), ('pressed', background_color)])
+
+    style.configure('unpressedSmall.TButton',
+                         foreground='black',
+                         background = border_color,
+                         width = button_width,
+                         height = button_height,
+                         relief = 'ridged',
+                         padding = button_padding,
+                         font = button_font_menu2,
+                         wrap=tk.WORD)
+    style.map('unpressedSmall.TButton',background = [('pressed', 'red'),('!pressed', border_color),('disabled',grey)],foreground=[('active', background_color), ('pressed', background_color)])
 
 
     style.configure('pressed.TButton',
@@ -118,6 +130,7 @@ def init_default_window(master, style):
 
     #generic frame style
     style.configure('TFrame', background=border_color, bd=0)
+    style.configure('osk.TFrame', background=background_color, bd=0)
 
 
     style.configure('TLabel', background=border_color, font=('Helvetica Bold', 20), wrap=tk.WORD)

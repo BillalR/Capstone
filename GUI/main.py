@@ -33,7 +33,6 @@ from testingScreenPlot import *
 from quickScreen import *
 from keyboardScreen import *
 from knnML import *
-#from cnnModel import *
 from testkey import *
 from svmModel import *
 
@@ -235,7 +234,6 @@ class home(base_app):
     def dataFolder(self):
         script_dir = pathlib.Path(__file__).parent.absolute() #<-- absolute dir the script is in
         script_dir = str(script_dir) + "/UserData"
-        print(script_dir)
         if os.path.isdir(script_dir):
             pass
         else:

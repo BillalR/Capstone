@@ -29,10 +29,11 @@ class sideMenu:
                                      style = 'unpressed.TButton')
         self.homeButton.grid(column = 0, row = 0, sticky = 'ne',ipady=0)
 
-        self.calibrateScreenButton = ttk.Button(self.canvas,
-                                     text = 'Calibration',
-                                     style = 'unpressed.TButton')
-        self.calibrateScreenButton.grid(column = 0, row = 1, sticky = 'ne', ipady=0)
+        self.keyboardButton = ttk.Button(self.canvas,
+                                         text='Keyboard',
+                                         style='unpressed.TButton')
+        self.keyboardButton.grid(column=0, row=1, sticky='ne', ipady=0)
+
 
         self.testButton = ttk.Button(self.canvas,
                                      text='Testing',
@@ -44,10 +45,12 @@ class sideMenu:
                                       style='unpressed.TButton')
         self.quickButton.grid(column=0, row=3, sticky='ne', ipady=0)
 
-        self.keyboardButton = ttk.Button(self.canvas,
-                                         text='Keyboard',
-                                         style='unpressed.TButton')
-        self.keyboardButton.grid(column=0, row=4, sticky='ne', ipady=0)
+        self.calibrateScreenButton = ttk.Button(self.canvas,
+                                     text = 'Calibration',
+                                     style = 'unpressed.TButton')
+        self.calibrateScreenButton.grid(column = 0, row = 4, sticky = 'ne', ipady=0)
+
+
 
         '''
         #Get yourself a better logo than this one
