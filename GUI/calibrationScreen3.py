@@ -12,7 +12,7 @@ class calibrationScreen3:
         self.mainFrame = tk.Frame(self.master, bg=background_color)
 
         self.counter_1 = tk.IntVar()
-        self.counter_1.set(20)
+        self.counter_1.set(2)
 
         #center frame that fits between the header and footer
         self.calibFrame = tk.Frame(self.mainFrame, bg=background_color)
@@ -56,3 +56,4 @@ class calibrationScreen3:
 
     def pack_forget(self):
         self.mainFrame.pack_forget()
+        self.progressBar.stop()

@@ -4,7 +4,7 @@ import os
 from PIL import ImageTk, Image
 from AppSetup.window_setup import *
 
-class calibrationScreen7:
+class calibrationScreen11:
 
     def __init__(self,master):
 
@@ -30,12 +30,13 @@ class calibrationScreen7:
         self.neutralImage.grid(column=25,row=3,columnspan=1,rowspan=1,sticky='n')
 
         self.blankSpace = ttk.Label(self.calibFrame,
-                                                 text="We are now moving to the DOWN thought pattern processes.",
+                                                 text="We are now moving to the LEFT thought pattern processes.",
                                                  style = "overBackground.TLabel")
         self.blankSpace.grid(column=25,row=5,columnspan=1,rowspan=1,padx=30)
 
+
         self.calibrationInstructions3 = ttk.Label(self.calibFrame,
-                                                 text="During this time, you must think of the DOWN function, whether ",
+                                                 text="During this time, you must create an action for UP, whether ",
                                                  style = "overBackground.TLabel")
         self.calibrationInstructions3.grid(column=25,row=6,columnspan=1,rowspan=1,padx=30)
 
@@ -44,10 +45,10 @@ class calibrationScreen7:
                                                  style = "overBackground.TLabel")
         self.calibrationInstructions4.grid(column=25,row=7,columnspan=1,rowspan=1,padx=30)
 
-        self.secondStateReadButton = ttk.Button(self.calibFrame,
+        self.thirdStateReadButton = ttk.Button(self.calibFrame,
                                                     text="Start",
                                                     style="unpressed.TButton")
-        self.secondStateReadButton.grid(column=25,row=8,columnspan=1,rowspan=1,padx=30)
+        self.thirdStateReadButton.grid(column=25,row=8,columnspan=1,rowspan=1,padx=30)
 
 
         #pack the center frame

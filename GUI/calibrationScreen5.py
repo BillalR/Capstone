@@ -30,29 +30,25 @@ class calibrationScreen5:
         self.neutralImage.grid(column=25,row=3,columnspan=1,rowspan=1,sticky='n')
 
         self.blankSpace = ttk.Label(self.calibFrame,
-                                                 text="We are now moving to the on thought pattern processes.",
+                                                 text="We are now moving to the UP thought pattern processes.",
                                                  style = "overBackground.TLabel")
         self.blankSpace.grid(column=25,row=5,columnspan=1,rowspan=1,padx=30)
 
-        self.calibrationInstructions2 = ttk.Label(self.calibFrame,
-                                                 text="An image of an led that is on will be displayed on your screen.",
-                                                 style = "overBackground.TLabel")
-        self.calibrationInstructions2.grid(column=25,row=6,columnspan=1,rowspan=1,padx=30)
 
         self.calibrationInstructions3 = ttk.Label(self.calibFrame,
-                                                 text="During this time, you must think of the on function, whether ",
+                                                 text="During this time, you must create an action for UP, whether ",
                                                  style = "overBackground.TLabel")
-        self.calibrationInstructions3.grid(column=25,row=7,columnspan=1,rowspan=1,padx=30)
+        self.calibrationInstructions3.grid(column=25,row=6,columnspan=1,rowspan=1,padx=30)
 
         self.calibrationInstructions4 = ttk.Label(self.calibFrame,
-                                                 text="that means saying the word on out loud, in your head, etc.",
+                                                 text="that means saying the word on out loud, moving a limb, etc.",
                                                  style = "overBackground.TLabel")
-        self.calibrationInstructions4.grid(column=25,row=8,columnspan=1,rowspan=1,padx=30)
+        self.calibrationInstructions4.grid(column=25,row=7,columnspan=1,rowspan=1,padx=30)
 
-        self.onStateReadButton = ttk.Button(self.calibFrame,
+        self.firstStateReadButton = ttk.Button(self.calibFrame,
                                                     text="Start",
                                                     style="unpressed.TButton")
-        self.onStateReadButton.grid(column=25,row=9,columnspan=1,rowspan=1,padx=30)
+        self.firstStateReadButton.grid(column=25,row=8,columnspan=1,rowspan=1,padx=30)
 
 
         #pack the center frame
